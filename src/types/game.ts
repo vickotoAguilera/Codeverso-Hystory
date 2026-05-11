@@ -30,6 +30,7 @@ export interface Personaje {
   inventario: string[];
   nivel: number;
   experiencia: number;
+  xpNecesaria: number;
 }
 
 export interface OpcionNarrativa {

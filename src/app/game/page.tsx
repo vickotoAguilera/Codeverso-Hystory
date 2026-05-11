@@ -8,7 +8,7 @@ import { collection, query, where, getDocs, doc, updateDoc, getDoc } from 'fireb
 import { Personaje, Partida, RespuestaIA } from '@/types/game';
 import { CharacterPanel } from '@/components/game/CharacterPanel';
 import { generarNarrativa } from '@/actions/narrator';
-import { procesarCombate } from '@/actions/combat';
+import { procesarCombate, resucitarPersonaje } from '@/actions/combat';
 
 export default function GamePage() {
   const router = useRouter();
@@ -72,8 +72,25 @@ export default function GamePage() {
   const handleNextStep = async (eleccion: string, currentPartida: Partida, currentChar: Personaje) => {
     setActionLoading(true);
     try {
-      // Si estamos en prólogo, forzamos la derrota narrativa
-      if (currentPartida.faseJuego === 'prologo') {
+      // Lógica de Resurrección (Botón ID 999)
+      if (eleccion === "Renacer en el Gremio (Coste: Perder XP actual)") {
+        await resucitarPersonaje(currentChar.id);
+        const promptResurrecion = "Has despertado en la enfermería del Gremio de Aventureros tras ser derrotado. Te sientes débil pero vivo.";
+        const nuevaNarrativa = await generarNarrativa(promptResurrecion, currentChar, "aventura", currentPartida.grupo);
+        
+        const gameRef = doc(db, "partidas", currentPartida.id);
+        await updateDoc(gameRef, { ultimaNarrativa: nuevaNarrativa });
+
+        // Recargar personaje resucitado
+        const charSnap = await getDoc(doc(db, "personajes", currentChar.id));
+        if (charSnap.exists()) setPersonaje(charSnap.data() as Personaje);
+        
+        setPartida({ ...currentPartida, ultimaNarrativa: nuevaNarrativa });
+        setNarrativaActual(nuevaNarrativa);
+        return;
+      }
+
+      // Si estamos en prólogo...
         const promptPrologo = `El jugador ha elegido: "${eleccion}". Narra cómo la batalla contra ${currentChar.nemesis} llega a su fin. Es una derrota inevitable. El jugador recibe un golpe devastador, todo se vuelve oscuro y despierta sin recuerdos frente al Gremio de Aventureros.`;
         
         const nuevaNarrativa = await generarNarrativa(promptPrologo, currentChar, "prologo", []);
@@ -117,23 +134,45 @@ export default function GamePage() {
     setActionLoading(true);
 
     try {
-      const atributoValor = personaje.atributos[opcion.atributo_requerido as keyof typeof personaje.atributos] || 10;
-      const { narracion, resultado } = await procesarCombate(atributoValor, opcion.atributo_requerido || "fuerza");
+      const { narracion, resultado } = await procesarCombate(
+        personaje.id, 
+        opcion.atributo_requerido || "fuerza"
+      );
 
-      // Actualizar HP del personaje si recibió daño (en este ejemplo simplificado solo narramos)
-      // En una versión más compleja, la IA podría devolver cuánto daño hace el enemigo
-      
-      const promptPostCombate = `Resultado del combate: ${narracion}. El jugador usó ${opcion.texto_boton}. Continúa la historia basándote en este resultado.`;
-      const nuevaNarrativa = await generarNarrativa(promptPostCombate, personaje, "aventura", partida.grupo);
+      // Si el jugador murió, el Agente de Combate ya narró la muerte.
+      // Ahora el Agente Narrador debe ofrecer la opción de resurrección.
+      if (resultado.muerto) {
+        const nuevaRespuesta: RespuestaIA = {
+          narrativa: narracion || "Tu visión se desvanece...",
+          opciones: [{
+            id: 999,
+            texto_boton: "Renacer en el Gremio (Coste: Perder XP actual)",
+            tipo_accion: "narrativa"
+          }]
+        };
+        setNarrativaActual(nuevaRespuesta);
+        setPersonaje({ ...personaje, hpActual: 0 }); // Sincronizar UI
+      } else {
+        // Victoria o golpe recibido (pero sigue vivo)
+        const promptPostCombate = `Resultado del combate: ${narracion}. El jugador usó ${opcion.texto_boton}. Continúa la historia basándote en este resultado.`;
+        const nuevaNarrativa = await generarNarrativa(promptPostCombate, personaje, "aventura", partida.grupo);
 
-      const gameRef = doc(db, "partidas", partida.id);
-      await updateDoc(gameRef, { 
-        ultimaNarrativa: nuevaNarrativa,
-        timestamp: Date.now()
-      });
+        const gameRef = doc(db, "partidas", partida.id);
+        await updateDoc(gameRef, { 
+          ultimaNarrativa: nuevaNarrativa,
+          timestamp: Date.now()
+        });
 
-      setPartida({ ...partida, ultimaNarrativa: nuevaNarrativa });
-      setNarrativaActual(nuevaNarrativa);
+        // Recargar datos del personaje para ver cambios de XP/Nivel/HP
+        const charRef = doc(db, "personajes", personaje.id);
+        const charSnap = await getDoc(charRef);
+        if (charSnap.exists()) {
+          setPersonaje(charSnap.data() as Personaje);
+        }
+
+        setPartida({ ...partida, ultimaNarrativa: nuevaNarrativa });
+        setNarrativaActual(nuevaNarrativa);
+      }
     } catch (error) {
       console.error("Error en combate:", error);
     } finally {

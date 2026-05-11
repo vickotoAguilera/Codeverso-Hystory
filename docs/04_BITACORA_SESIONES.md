@@ -28,3 +28,5 @@
   * Acción: Implementación del Core Game Loop en la ruta `/game`. Desarrollo del motor de narrativa que gestiona el Prólogo (derrota programada contra el Némesis) y la transición automática a la fase de Aventura. Integración del CharacterPanel con datos reales de Firestore y manejo de Server Actions para combate y narrativa.
 * **[Fecha: 2026-05-11] [Hora: 01:45] [Entorno: PC Trabajo]**
   * Acción: Implementación de excepción controlada para entrada de nombre manual en el Wizard. Creación de input con validación Regex estricta (8 letras máx, sin números ni espacios) y estilos "Shiny".
+* **[Fecha: 2026-05-11] [Hora: 02:00] [Entorno: PC Trabajo]**
+  * Acción: Implementación del Sistema de Daño Real, XP y Muerte. Actualización de modelos con Experiencia y Nivel. Desarrollo de lógica de combate en el servidor que actualiza Firestore. Implementación de motor de resurrección y penalización de XP. Actualización de UI con barra de experiencia dinámica.

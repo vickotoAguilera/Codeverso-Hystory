@@ -10,6 +10,7 @@ interface Props {
 
 export const CharacterPanel: React.FC<Props> = ({ personaje, grupo = [] }) => {
   const hpPercentage = (personaje.hpActual / personaje.hpMax) * 100;
+  const xpPercentage = (personaje.experiencia / (personaje.xpNecesaria || 100)) * 100;
 
   return (
     <div className="w-full lg:w-72 bg-card border border-border rounded-2xl p-6 flex flex-col gap-6 sticky top-8">
@@ -18,15 +19,20 @@ export const CharacterPanel: React.FC<Props> = ({ personaje, grupo = [] }) => {
         <h2 className="text-xl font-bold text-primary tracking-tight uppercase">
           {personaje.nombre}
         </h2>
-        <span className="text-xs text-foreground/50 font-mono">
-          NIVEL {personaje.nivel} • {personaje.genero.toUpperCase()}
-        </span>
+        <div className="flex justify-between items-center">
+          <span className="text-[10px] text-foreground/50 font-mono">
+            {personaje.genero.toUpperCase()} • {personaje.raza.toUpperCase()}
+          </span>
+          <span className="text-xs font-black text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+            NIVEL {personaje.nivel}
+          </span>
+        </div>
       </div>
 
       {/* HP Bar Jugador */}
       <div className="flex flex-col gap-2">
-        <div className="flex justify-between text-xs font-mono">
-          <span className="text-foreground/70">PUNTOS DE VIDA</span>
+        <div className="flex justify-between text-[10px] font-mono">
+          <span className="text-foreground/70 uppercase tracking-widest">Vitalidad</span>
           <span className={personaje.hpActual < 5 ? 'text-accent animate-pulse' : 'text-primary'}>
             {personaje.hpActual} / {personaje.hpMax}
           </span>
@@ -35,6 +41,22 @@ export const CharacterPanel: React.FC<Props> = ({ personaje, grupo = [] }) => {
           <div 
             className="h-full bg-gradient-to-r from-accent to-primary transition-all duration-500 ease-out"
             style={{ width: `${hpPercentage}%` }}
+          />
+        </div>
+      </div>
+
+      {/* XP Bar Jugador */}
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between text-[10px] font-mono">
+          <span className="text-foreground/70 uppercase tracking-widest text-[9px]">Experiencia</span>
+          <span className="text-secondary">
+            {personaje.experiencia} / {personaje.xpNecesaria || 100}
+          </span>
+        </div>
+        <div className="h-1 w-full bg-border/50 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-secondary to-primary animate-shiny transition-all duration-500 ease-out"
+            style={{ width: `${xpPercentage}%` }}
           />
         </div>
       </div>
