@@ -14,25 +14,24 @@ Hola Gemini! Este es el estado actual del proyecto **Codeverso History** para qu
 - **Repositorio:** Git (GitHub) vinculado y actualizado.
 
 ## 3. Lo que YA está creado y configurado
-- **Estructura Base:** Proyecto Next.js inicializado en la raíz.
-- **Documentación:** Carpeta `docs/` con visión, arquitectura, modelos de datos y bitácoras.
-- **Variables de Entorno (.env):** 
-  - 3 API Keys de Groq (una para cada agente).
-  - Configuración completa de Firebase.
-- **Estilos:** `src/app/globals.css` configurado con tema oscuro, animaciones de aurora y clases para botones "shiny".
-- **Firebase:** `src/lib/firebase.ts` inicializado con Firestore y Auth. Reglas de seguridad básicas aplicadas.
-- **Landing Page:** `src/app/page.tsx` funcional con el diseño visual base y botones de inicio.
+- **Estructura Base:** Proyecto Next.js funcional con App Router.
+- **Wizard de Creación:** Sistema "Zero Text Input" basado en botones que genera prompts visuales y narrativos dinámicos.
+- **Motor Visual:** Pipeline automatizado usando Hugging Face (FLUX.1-dev) y Sanity CMS para retratos de personajes y enemigos.
+- **Motor de Combate:** Lógica basada en d20, iniciativa, críticos y sinergias elementales (portado de Python).
+- **IA Multi-Agente:** 3 agentes (Narrador, Diálogo, Combate) con balanceo de carga entre 3 API Keys de Groq.
+- **Habilidades Procedurales:** Generación de habilidades únicas cada 3 niveles mediante IA, almacenadas en un compendio global persistente.
+- **Firebase:** Firestore para personajes/partidas y Google Auth para sesiones.
 
 ## 4. Estado Actual de Archivos Clave
-- `package.json`: Dependencias instaladas (`firebase`, `groq-sdk`).
-- `.env`: Todas las llaves están listas.
-- `docs/`: 5 archivos de documentación técnica y de progreso.
+- `src/actions/`: Lógica de servidor para combate, narrativa, diálogo, visuales y habilidades procedurales.
+- `src/components/game/`: Componentes UI "Shiny" (CharacterPanel, CharacterCreator, CombatLog, etc.).
+- `src/types/game.ts`: Definición estricta de interfaces RPG.
+- `src/data/compendium.ts`: Base de datos estática de razas, clases y habilidades base.
 
 ## 5. Próximos Pasos Pendientes (A planificar)
-- Definición de la estructura de colecciones en Firestore para guardar personajes y partidas.
-- Implementación del Agente Narrador (Prompt Engineering para Groq).
-- Creación del Panel de Personaje dinámico (HP, Atributos, Inventario).
-- Lógica de la tirada de dados en el frontend/backend.
+- Implementación de la colección `misiones` en Firestore.
+- Refinamiento de la UI de combate (visualización de enemigos y efectos).
+- Sistema de equipamiento funcional (matemática de stats aplicada al personaje).
 
 ---
 *Este documento fue generado para facilitar el traspaso de contexto entre IAs.*

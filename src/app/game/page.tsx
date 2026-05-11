@@ -138,14 +138,20 @@ export default function GamePage() {
     setActionLoading(true);
 
     try {
-      const { narracion, resultado } = await procesarCombate(
+      const { narracion, logs, combatResult } = await procesarCombate(
         personaje.id, 
-        opcion.atributo_requerido || "fuerza"
+        opcion.habilidad_id || "ID_CORTE_CRUZADO",
+        partida.id,
+        narrativaActual?.enemigos?.[0]?.id || ""
       );
 
-      // Si el jugador murió, el Agente de Combate ya narró la muerte.
-      // Ahora el Agente Narrador debe ofrecer la opción de resurrección.
-      if (resultado.muerto) {
+      // Si el jugador murió o el enemigo murió, el Agente de Combate ya narró el impacto.
+      // Pero necesitamos verificar el estado del personaje tras el combate.
+      const charRef = doc(db, "personajes", personaje.id);
+      const charSnap = await getDoc(charRef);
+      const currentChar = charSnap.data() as Personaje;
+
+      if (currentChar.hpActual <= 0) {
         const nuevaRespuesta: RespuestaIA = {
           narrativa: narracion || "Tu visión se desvanece...",
           opciones: [{
@@ -154,12 +160,20 @@ export default function GamePage() {
             tipo_accion: "narrativa"
           }]
         };
+
+        const gameRef = doc(db, "partidas", partida.id);
+        await updateDoc(gameRef, { 
+          ultimaNarrativa: nuevaRespuesta,
+          timestamp: Date.now()
+        });
+
         setNarrativaActual(nuevaRespuesta);
-        setPersonaje({ ...personaje, hpActual: 0 }); // Sincronizar UI
+        setPersonaje(currentChar);
+        setPartida({ ...partida, ultimaNarrativa: nuevaRespuesta });
       } else {
-        // Victoria o golpe recibido (pero sigue vivo)
-        const promptPostCombate = `Resultado del combate: ${narracion}. El jugador usó ${opcion.texto_boton}. Continúa la historia basándote en este resultado.`;
-        const nuevaNarrativa = await generarNarrativa(promptPostCombate, personaje, "aventura", partida.grupo);
+        // Victoria o continuación
+        const promptPostCombate = `Resultado del combate: ${narracion}. Continúa la historia basándote en este resultado.`;
+        const nuevaNarrativa = await generarNarrativa(promptPostCombate, currentChar, "aventura", partida.grupo);
 
         const gameRef = doc(db, "partidas", partida.id);
         await updateDoc(gameRef, { 
@@ -167,13 +181,7 @@ export default function GamePage() {
           timestamp: Date.now()
         });
 
-        // Recargar datos del personaje para ver cambios de XP/Nivel/HP
-        const charRef = doc(db, "personajes", personaje.id);
-        const charSnap = await getDoc(charRef);
-        if (charSnap.exists()) {
-          setPersonaje(charSnap.data() as Personaje);
-        }
-
+        setPersonaje(currentChar);
         setPartida({ ...partida, ultimaNarrativa: nuevaNarrativa });
         setNarrativaActual(nuevaNarrativa);
       }

@@ -2,113 +2,145 @@
 import Groq from "groq-sdk";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
-import { Personaje } from "@/types/game";
+import { Personaje, Elemento, LogEntry, EntidadTurno, Partida, Habilidad } from "@/types/game";
+import { generateNewSkill } from "./skills";
 
 const groq = new Groq({ 
   apiKey: process.env.GROQ_API_KEY_COMBATE 
 });
 
-interface ResultadoCombate {
-  exito: boolean;
-  tirada: number;
-  atributo: number;
-  defensaEnemigo: number;
-  total: number;
-  danioRecibido: number;
-  xpGanada: number;
-  subioNivel: boolean;
-  muerto: boolean;
+/**
+ * Lanza la iniciativa para todos los participantes al inicio de un encuentro.
+ */
+export async function rollInitiative(personaje: Personaje, grupo: any[], enemigos: any[]): Promise<EntidadTurno[]> {
+  const participantes: EntidadTurno[] = [
+    { 
+      id: personaje.id, 
+      nombre: personaje.nombre, 
+      tipo: "heroe", 
+      iniciativa: Math.floor(Math.random() * 20) + 1 + (personaje.atributos.agilidad || 10),
+      velocidad: personaje.atributos.agilidad || 10,
+      status_effects: personaje.status_effects || []
+    },
+    ...grupo.map(g => ({
+      id: g.id, 
+      nombre: g.nombre, 
+      tipo: "heroe" as const, 
+      iniciativa: Math.floor(Math.random() * 20) + 1 + 10,
+      velocidad: 10,
+      status_effects: g.status_effects || []
+    })),
+    ...enemigos.map(e => ({
+      id: e.id, 
+      nombre: e.nombre, 
+      tipo: "enemigo" as const, 
+      iniciativa: Math.floor(Math.random() * 20) + 1 + (e.velocidad || 10),
+      velocidad: e.velocidad || 10,
+      status_effects: e.status_effects || []
+    }))
+  ];
+
+  return participantes.sort((a, b) => b.iniciativa - a.iniciativa);
 }
 
 /**
- * Procesa la lógica de combate en el servidor y aplica cambios en Firestore.
+ * Ejecuta una habilidad traduciendo la lógica matemática de Python a TypeScript.
+ */
+export async function executeSkill(
+  attacker: Personaje | any, // Puede ser héroe o enemigo
+  target: any,
+  skill: Habilidad
+) {
+  const roll = Math.floor(Math.random() * 20) + 1;
+  const isCritical = roll === 20;
+  
+  let damageBase = skill.poder;
+  const statMultiplier = skill.tipo === "Magia Negra" ? (attacker.atributos?.inteligencia || attacker.inteligencia || 10) : (attacker.atributos?.fuerza || attacker.fuerza || 10);
+  
+  damageBase += statMultiplier;
+  let finalDamage = Math.floor(Math.random() * 5) + (damageBase - 2); // Rango de +/- 2
+  
+  if (isCritical) {
+    finalDamage *= 2;
+  }
+
+  const result = {
+    damage: finalDamage,
+    isCritical,
+    mpRestored: isCritical ? (attacker.mpMax || 20) : 0,
+    statusEffectApplied: skill.efecto ? {
+      tipo: skill.efecto,
+      duracion: skill.dot_duracion || 3,
+      valor: skill.dot_dano || 10
+    } : null
+  };
+
+  return result;
+}
+
+/**
+ * Procesa un turno de combate integrando iniciativa, habilidades y críticos.
  */
 export async function procesarCombate(
   personajeId: string,
-  nombreAtributo: string,
-  defensaEnemigo: number = 12
+  habilidadId: string,
+  partidaId: string,
+  targetId: string
 ) {
-  // 1. Obtener datos actuales del personaje
   const charRef = doc(db, "personajes", personajeId);
-  const charSnap = await getDoc(charRef);
+  const gameRef = doc(db, "partidas", partidaId);
   
-  if (!charSnap.exists()) throw new Error("Personaje no encontrado");
+  const [charSnap, gameSnap] = await Promise.all([getDoc(charRef), getDoc(gameRef)]);
+  if (!charSnap.exists() || !gameSnap.exists()) throw new Error("Datos no encontrados");
+  
   const character = charSnap.data() as Personaje;
+  const partida = gameSnap.data() as Partida;
+  
+  // Buscar la habilidad en el compendio
+  const skill: Habilidad = (habilidadId === "ID_PIRO" || habilidadId === "ID_VIENTO") ? 
+    { id: "ID_PIRO", nombre: "Piro", tipo: "Magia Negra", poder: 25, costo_mp: 5, elemento: "Fuego", efecto: "DOT_QUEMADURA", dot_duracion: 3, dot_dano: 15, descripcion: "Daña con fuego", alcance: "Un Enemigo" } :
+    { id: "ID_CORTE_CRUZADO", nombre: "Corte Cruzado", tipo: "Habilidad Fisica", poder: 25, costo_mp: 5, elemento: "Físico", descripcion: "Ataque físico", alcance: "Un Enemigo" };
 
-  // 2. Tirada de dados (D20)
-  const tirada = Math.floor(Math.random() * 20) + 1;
-  const atributoValor = character.atributos[nombreAtributo as keyof typeof character.atributos] || 10;
-  const total = tirada + atributoValor;
-  const exito = total >= defensaEnemigo;
+  const target = partida.ultimaNarrativa.enemigos?.find(e => e.id === targetId);
+  if (!target) throw new Error("Objetivo no encontrado");
 
-  let danioRecibido = 0;
-  let xpGanada = 0;
-  let subioNivel = false;
-  let nuevoHP = character.hpActual;
-  let nuevaXP = character.experiencia;
-  let nuevoNivel = character.nivel;
-  let nuevaXPNecesaria = character.xpNecesaria || 100;
+  const combatResult = await executeSkill(character, target, skill);
 
-  if (exito) {
-    // Victoria en el turno
-    xpGanada = 25;
-    nuevaXP += xpGanada;
-    
-    // Subida de nivel
-    if (nuevaXP >= nuevaXPNecesaria) {
-      subioNivel = true;
-      nuevoNivel += 1;
-      nuevaXP = 0;
-      nuevaXPNecesaria = Math.floor(nuevaXPNecesaria * 1.5);
-      nuevoHP = character.hpMax; // Curación completa
-    }
-  } else {
-    // Fallo: El jugador recibe daño
-    danioRecibido = Math.floor(Math.random() * 5) + 3; // 3-7 de daño
-    nuevoHP = Math.max(0, character.hpActual - danioRecibido);
-  }
+  // Actualizar estados
+  let nuevoHP_Enemigo = Math.max(0, target.hpActual - combatResult.damage);
+  let nuevoMP_Heroe = combatResult.isCritical ? character.mpMax : Math.max(0, character.mpActual - skill.costo_mp);
+  
+  const logs: LogEntry[] = [{
+    id: crypto.randomUUID(),
+    tipo: "combate",
+    mensaje: `¡${character.nombre} usa ${skill.nombre}! Inflige ${combatResult.damage} de daño. ${combatResult.isCritical ? "¡GOLPE CRÍTICO!" : ""}`,
+    timestamp: Date.now(),
+    isCritical: combatResult.isCritical
+  }];
 
-  const muerto = nuevoHP <= 0;
-
-  // 3. Actualizar Firestore
+  // Persistir cambios
   await updateDoc(charRef, {
-    hpActual: nuevoHP,
-    experiencia: nuevaXP,
-    nivel: nuevoNivel,
-    xpNecesaria: nuevaXPNecesaria
+    mpActual: nuevoMP_Heroe,
   });
 
-  const resultado: ResultadoCombate = {
-    exito,
-    tirada,
-    atributo: atributoValor,
-    defensaEnemigo,
-    total,
-    danioRecibido,
-    xpGanada,
-    subioNivel,
-    muerto
-  };
+  const nuevosEnemigos = partida.ultimaNarrativa.enemigos?.map(e => 
+    e.id === targetId ? { ...e, hpActual: nuevoHP_Enemigo } : e
+  );
 
-  // 4. Llamada al Agente de Combate para narrar
+  await updateDoc(gameRef, {
+    "ultimaNarrativa.enemigos": nuevosEnemigos,
+    combateLog: [...(partida.combateLog || []), ...logs].slice(-20)
+  });
+
+  // Llamada al Agente de Combate para narrar
   try {
-    let prompt = "";
-    if (muerto) {
-      prompt = `El jugador ha sido derrotado y ha muerto en combate contra un enemigo (Defensa ${defensaEnemigo}). Narra sus últimos momentos antes de que todo se vuelva oscuro de forma dramática.`;
-    } else if (subioNivel) {
-      prompt = `¡Victoria épica! El jugador ha derrotado a su enemigo y ha subido al NIVEL ${nuevoNivel}. Narra cómo su poder aumenta y sus heridas se cierran mágicamente.`;
-    } else if (exito) {
-      prompt = `Ataque exitoso (Total ${total} vs Defensa ${defensaEnemigo}). El jugador gana ${xpGanada} XP. Narra el impacto y el progreso del héroe.`;
-    } else {
-      prompt = `El jugador falla su acción (Total ${total} vs Defensa ${defensaEnemigo}) y recibe ${danioRecibido} de daño. Narra el golpe del enemigo y el estado crítico del jugador (HP restante: ${nuevoHP}).`;
-    }
+    const prompt = combatResult.isCritical 
+      ? `¡GOLPE CRÍTICO NATURAL 20! El jugador desata un poder inmenso con ${skill.nombre}. Narra este momento épico.`
+      : `El jugador usa ${skill.nombre} contra un enemigo. Inflige ${combatResult.damage} de daño. Narra el impacto de forma inmersiva.`;
 
     const completion = await groq.chat.completions.create({
       messages: [
-        {
-          role: "system",
-          content: "Eres el Agente de Combate de Codeverso History. Narra los resultados matemáticos de forma inmersiva. No menciones números de XP o daño a menos que sea necesario para la épica."
-        },
+        { role: "system", content: "Eres el Agente de Combate. Narra con estilo CRPG oscuro." },
         { role: "user", content: prompt }
       ],
       model: "llama-3.3-versatile",
@@ -116,14 +148,11 @@ export async function procesarCombate(
 
     return {
       narracion: completion.choices[0].message.content,
-      resultado
+      combatResult,
+      logs
     };
   } catch (error) {
-    console.error("Error en Agente de Combate:", error);
-    return {
-      narracion: muerto ? "Caes en batalla..." : (exito ? "Logras vencer." : "Recibes un golpe."),
-      resultado
-    };
+    return { narracion: "El combate continúa...", combatResult, logs };
   }
 }
 
@@ -138,11 +167,30 @@ export async function resucitarPersonaje(personajeId: string) {
   const character = charSnap.data() as Personaje;
 
   const nuevoHP = Math.floor(character.hpMax / 2);
+  const viejaXP = character.experiencia;
+  const xpGanada = 50; // Ejemplo de ganancia de XP para probar subida de nivel
+  let nuevaXP = viejaXP + xpGanada;
+  let nuevoNivel = character.nivel;
+  let habilidadesNuevas: Habilidad[] = [];
+
+  // Lógica de Subida de Nivel
+  if (nuevaXP >= character.xpNecesaria) {
+    nuevoNivel += 1;
+    nuevaXP -= character.xpNecesaria;
+    
+    // Verificación matemática: cada 3 niveles se genera una habilidad procedural
+    if (nuevoNivel % 3 === 0) {
+      const skill = await generateNewSkill(character);
+      habilidadesNuevas.push(skill);
+    }
+  }
   
   await updateDoc(charRef, {
     hpActual: nuevoHP,
-    experiencia: 0 // Penalización: pierde XP actual
+    experiencia: nuevaXP,
+    nivel: nuevoNivel,
+    xpNecesaria: 100 + (nuevoNivel * 50) // Escala de XP
   });
 
-  return { nuevoHP };
+  return { nuevoHP, nuevoNivel, habilidadesNuevas };
 }

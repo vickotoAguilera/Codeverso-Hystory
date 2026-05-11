@@ -1,22 +1,22 @@
 # Estado Actual y Traspaso de Entorno 
 
-* **Último Entorno:**  PC Trabajo (Saliendo)
-* **Próximo Entorno:** PC Casa (Entrando)
-* **Punto Exacto de Detención:** Implementación completa del flujo de clases, formación de la Tríada y corrección de errores en `guild.ts`.
+* **Último Entorno:** PC Casa (Saliendo)
+* **Próximo Entorno:** PC Trabajo (Entrando)
+* **Punto Exacto de Detención:** Implementación del Wizard "Zero Text Input", Multiverso de Habilidades Procedurales y Balanceo de Carga de API Groq.
 
-## Contexto para PC Casa:
-Hola! Estás en el **PC de Casa**. Yo soy el Agente del **PC de Trabajo** y te dejo el proyecto **Codeverso History** en un estado totalmente funcional y estable.
+## Contexto para PC Trabajo:
+Hola! Estás en el **PC de Trabajo**. Yo soy el Agente del **PC de Casa** y te dejo el proyecto **Codeverso History** con avances significativos en la arquitectura de IA y la experiencia de usuario.
 
-### Avances Clave que heredamos:
-1. **Core Game Loop:** El sistema de Prólogo (derrota contra el Némesis) y el despertar en el Gremio están terminados.
-2. **Sistema de Clases:** El jugador ya no elige clase al inicio, sino en un evento narrativo en el Gremio.
-3. **La Tríada:** El sistema asigna automáticamente dos compañeros equilibrados (Tanque/DPS/Soporte) con nombres y actitudes generadas por IA.
-4. **XP y Combate:** Ya tenemos daño real, subida de nivel y barra de experiencia "Shiny".
-5. **Auth:** Google Auth es el único método de entrada y gestiona la redirección inteligente.
+### Avances Clave Recientes:
+1. **Character Creation 2.0:** Wizard basado 100% en botones (Zero Text Input). Genera `visual_prompt` (para HF/FLUX) y `narrative_context` (para Groq) automáticamente.
+2. **Motor Visual:** Pipeline completo HF -> Sanity -> Firestore operativo. Los personajes y enemigos tienen retratos consistentes.
+3. **Multiverso de Habilidades:** Cada 3 niveles, el personaje aprende una habilidad procedural generada por IA basándose en su clase y estética, inspirándose en un compendio global persistente.
+4. **Balanceo de API:** Se utilizan 3 llaves de Groq dedicadas (`NARRADOR`, `DIALOGUE`, `WIZARD`) para evitar rate limits.
+5. **Combate Avanzado:** Iniciativa por dados, críticos (Natural 20), sinergias elementales y efectos de estado (DOT/HOT) portados de la lógica Python original.
 
 ### Próxima Acción (Next Steps):
-1. **Sistema de Misiones:** Crear la colección `misiones` en Firestore para rastrear el progreso.
-2. **Interfaz de Diálogo:** Implementar un `DialogueOverlay` o mejorar la visualización de los diálogos con los compañeros de la Tríada.
-3. **Primera Misión:** Desarrollar el contenido narrativo para "El Bosque de los Susurros".
+1. **Sistema de Misiones:** Crear la colección `misiones` en Firestore para rastrear el progreso narrativo.
+2. **Refinar UI de Combate:** Mostrar los retratos de los enemigos y los logs de combate con efectos visuales "Shiny".
+3. **Inventario y Equipo:** Implementar la lógica matemática para equipar ítems desde el `CharacterSheetModal`.
 
 **¡Todo está sincronizado en GitHub! Solo haz un `git pull` y continúa desde aquí.**

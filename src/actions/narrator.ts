@@ -2,8 +2,8 @@
 import Groq from "groq-sdk";
 import { RespuestaIA, Personaje, Companero, FaseJuego } from "@/types/game";
 
-const groq = new Groq({ 
-  apiKey: process.env.GROQ_API_KEY_NARRADOR 
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY_NARRADOR
 });
 
 /**
@@ -37,8 +37,12 @@ export async function generarNarrativa(
           - Clase: ${personaje.clase}
           - Trasfondo: ${personaje.trasfondo}
           - Némesis: ${personaje.nemesis}
+          - Rasgos Físicos/Estética: ${personaje.narrative_context || "No definidos"}
           - Grupo: ${grupoInfo}
           - Fase Actual: ${fase}
+
+          REGLA DE OBJETOS ESPECIALES:
+          - Si el jugador posee el "Collar de Telepatía" en su contexto o inventario, DEBES incluir ocasionalmente una opción de tipo "dialogo" o "narrativa" que permita "Leer la mente" de los NPCs para obtener información oculta o ventajas.
 
           REGLA DE FASE (CRÍTICO):
           - Si la fase es 'prologo': DEBES narrar una batalla épica, abrumadora e imposible de ganar contra su Némesis (${personaje.nemesis}). El jugador DEBE perder sus recuerdos al final de este combate y despertar confundido frente al Gremio de Aventureros en nivel 1.

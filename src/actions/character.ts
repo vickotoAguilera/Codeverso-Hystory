@@ -3,7 +3,7 @@ import Groq from "groq-sdk";
 import { Genero } from "@/types/game";
 
 const groq = new Groq({ 
-  apiKey: process.env.GROQ_API_KEY_NARRADOR 
+  apiKey: process.env.GROQ_API_KEY_WIZARD 
 });
 
 /**

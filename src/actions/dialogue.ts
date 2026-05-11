@@ -4,7 +4,7 @@ import Groq from "groq-sdk";
 import { Personaje, Companero } from "@/types/game";
 
 const groq = new Groq({ 
-  apiKey: process.env.GROQ_API_KEY_DIALOGO 
+  apiKey: process.env.GROQ_API_KEY_DIALOGUE 
 });
 
 interface DialogueResponse {

@@ -1,4 +1,4 @@
-import CharacterCreation from "@/components/game/CharacterCreation";
+import CharacterCreator from "@/components/game/CharacterCreator";
 
 export default function CreatePage() {
   return (
@@ -9,7 +9,7 @@ export default function CreatePage() {
       </div>
       
       <div className="w-full h-full flex items-center justify-center p-4">
-        <CharacterCreation />
+        <CharacterCreator />
       </div>
     </main>
   );
