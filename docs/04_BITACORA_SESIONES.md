@@ -22,3 +22,5 @@
   * Acción: Implementación de la ruta `/create` y ensamblaje del Wizard. Conexión de la Landing Page con Firebase Auth (Anónimo y Google). Configuración del App Router para la creación de personajes y redirección segura.
 * **[Fecha: 2026-05-11] [Hora: 00:55] [Entorno: PC Trabajo]**
   * Acción: Resolución de error de Firebase (auth/admin-restricted-operation). Implementación de manejo de errores en la Landing Page para notificar al usuario sobre la necesidad de habilitar el login anónimo en Firebase Console.
+* **[Fecha: 2026-05-11] [Hora: 01:10] [Entorno: PC Trabajo]**
+  * Acción: Simplificación del sistema de autenticación. Se eliminó el login anónimo para usar exclusivamente Google Auth. Implementación de lógica de redirección inteligente: detección automática de personajes existentes en Firestore para dirigir al usuario a "Nueva Partida" o "Continuar Aventura".
