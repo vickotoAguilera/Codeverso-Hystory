@@ -1,8 +1,9 @@
 # Estado Actual y Traspaso de Entorno 
 
 * **Último Entorno:**  PC Trabajo 
-* **Punto Exacto de Detención:** Creación del resumen para Gemini y sincronización final de configuración.
-* **Contexto Pendiente:**  Esperar nuevas instrucciones de planificación generadas con Gemini.
+* **Punto Exacto de Detención:** Implementación de la lógica core (Agentes Narrador/Combate) y Panel de Personaje UI.
+* **Contexto Pendiente:**  Implementar el guardado dinámico en Firestore y conectar la UI de la landing page con el inicio de la narrativa real.
 * **Próxima Acción (Next Steps):**  
-  1. Recibir el plan detallado de Gemini.
-  2. Implementar la lógica de agentes de IA y persistencia en Firestore según el plan.
+  1. Crear la vista principal del juego (`src/app/game/page.tsx`) que integre el `CharacterPanel` y el flujo de narrativa.
+  2. Implementar funciones de Firestore para `setDoc` y `getDoc` del estado del personaje.
+  3. Conectar el botón "NUEVA PARTIDA" con la primera llamada al Agente Narrador.

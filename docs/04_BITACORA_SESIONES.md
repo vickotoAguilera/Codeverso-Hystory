@@ -10,3 +10,5 @@
   * Acción: Integración de Firebase (Firestore & Auth). Configuración de variables de entorno para Firebase, creación de `src/lib/firebase.ts` e instalación de dependencias base (`firebase`, `groq-sdk`). Definición de reglas de seguridad iniciales.
 * **[Fecha: 2026-05-10] [Hora: 23:10] [Entorno: PC Trabajo]**
   * Acción: Creación de `RESUMEN_PARA_GEMINI.md` para facilitar la planificación externa con otra IA. Sincronización final de la sesión en GitHub.
+* **[Fecha: 2026-05-10] [Hora: 23:30] [Entorno: PC Trabajo]**
+  * Acción: Implementación de la arquitectura core del juego: Server Actions para Agente Narrador y Agente de Combate. Creación de tipos de datos en TypeScript. Desarrollo del componente `CharacterPanel` (Client Component) con estilos Shiny y React 19. Definición de la estructura de colecciones para Firestore.
