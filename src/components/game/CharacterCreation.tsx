@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { RAZAS, CLASES, TRASFONDOS } from '@/data/compendium';
 import { Genero } from '@/types/game';
-import { sugerirNombres, sugerirNemesis } from '@/actions/character';
+import { sugerirNombres, sugerirNemesis, generarTrasfondosIA } from '@/actions/character';
 import { db, auth } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
@@ -20,6 +20,7 @@ export default function CharacterCreation() {
     nemesis: ''
   });
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [extraTrasfondos, setExtraTrasfondos] = useState<{id: string, nombre: string, lore: string}[]>([]);
   const [nameError, setNameError] = useState('');
 
   const handleNext = () => setStep(s => s + 1);
@@ -43,6 +44,18 @@ export default function CharacterCreation() {
     setLoading(true);
     const enemies = await sugerirNemesis(t);
     setSuggestions(enemies);
+    setLoading(false);
+  };
+
+  const handleGenerateExtraTrasfondos = async () => {
+    setLoading(true);
+    const extras = await generarTrasfondosIA();
+    const formattedExtras = extras.map(e => ({
+      id: `ia_${crypto.randomUUID()}`,
+      nombre: e.nombre,
+      lore: e.lore
+    }));
+    setExtraTrasfondos([...extraTrasfondos, ...formattedExtras]);
     setLoading(false);
   };
 
@@ -165,7 +178,7 @@ export default function CharacterCreation() {
               <div className="animate-in fade-in slide-in-from-right-4 duration-500">
                 <h2 className="text-3xl font-bold text-gradient mb-4">Ecos del pasado</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-                  {TRASFONDOS.map((t) => (
+                  {[...TRASFONDOS, ...extraTrasfondos].map((t) => (
                     <button
                       key={t.id}
                       onClick={() => { setSelections({...selections, trasfondo: t}); handleNext(); }}
@@ -175,6 +188,15 @@ export default function CharacterCreation() {
                       <p className="text-sm text-foreground/60 leading-relaxed">{t.lore}</p>
                     </button>
                   ))}
+                  
+                  {/* Botón IA */}
+                  <button
+                    onClick={handleGenerateExtraTrasfondos}
+                    className="p-6 rounded-2xl border border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary transition-all text-center flex flex-col items-center justify-center gap-2 group"
+                  >
+                    <span className="text-2xl group-hover:animate-bounce">✨</span>
+                    <span className="font-bold text-primary text-sm uppercase tracking-widest">Generar orígenes perdidos (IA)</span>
+                  </button>
                 </div>
                 <button onClick={handleBack} className="mt-8 text-foreground/40 hover:text-primary transition-colors uppercase text-xs font-bold tracking-widest">← Volver</button>
               </div>

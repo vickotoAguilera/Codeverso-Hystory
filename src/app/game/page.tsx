@@ -10,6 +10,7 @@ import { CharacterPanel } from '@/components/game/CharacterPanel';
 import { generarNarrativa } from '@/actions/narrator';
 import { procesarCombate, resucitarPersonaje } from '@/actions/combat';
 import { elegirClaseGremio } from '@/actions/guild';
+import { hablarConNPC } from '@/actions/dialogue';
 import { CLASES } from '@/data/compendium';
 
 export default function GamePage() {
@@ -188,16 +189,37 @@ export default function GamePage() {
     setActionLoading(true);
 
     try {
-      const { nombreClase } = await elegirClaseGremio(personaje.id, partida.id, claseId);
+      const { nombreClase, grupo } = await elegirClaseGremio(personaje.id, partida.id, claseId);
       
-      const promptAventura = `El jugador ha elegido su vocación: ${nombreClase}. Narra cómo se equipa en el Gremio y sale a su primera misión real para recuperar su honor y memoria.`;
-      const nuevaNarrativa = await generarNarrativa(promptAventura, personaje, "aventura", []);
+      // Usar Agente de Diálogo para la presentación formal
+      const contextoNPC = `El Maestro del Gremio y los dos nuevos compañeros (${grupo[0].nombre} y ${grupo[1].nombre}) se presentan formalmente al jugador.`;
+      const responseDialogue = await hablarConNPC(
+        `He elegido el camino del ${nombreClase}. Preséntense y díganme qué haremos ahora.`,
+        { ...personaje, clase: nombreClase },
+        grupo,
+        contextoNPC
+      );
 
-      // Actualizar estado local
+      // Sincronizar personaje con nueva clase
       const charSnap = await getDoc(doc(db, "personajes", personaje.id));
       if (charSnap.exists()) setPersonaje(charSnap.data() as Personaje);
       
-      setPartida({ ...partida, faseJuego: "aventura", ultimaNarrativa: nuevaNarrativa });
+      const nuevaNarrativa: RespuestaIA = {
+        narrativa: responseDialogue.dialogo,
+        opciones: responseDialogue.opciones_respuesta.map(o => ({
+          id: o.id,
+          texto_boton: o.texto,
+          tipo_accion: "narrativa"
+        }))
+      };
+
+      const gameRef = doc(db, "partidas", partida.id);
+      await updateDoc(gameRef, { 
+        ultimaNarrativa: nuevaNarrativa,
+        timestamp: Date.now()
+      });
+
+      setPartida({ ...partida, faseJuego: "aventura", grupo: grupo, ultimaNarrativa: nuevaNarrativa });
       setNarrativaActual(nuevaNarrativa);
     } catch (error) {
       console.error("Error al elegir clase:", error);

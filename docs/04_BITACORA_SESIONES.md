@@ -32,3 +32,5 @@
   * Acción: Implementación del Sistema de Daño Real, XP y Muerte. Actualización de modelos con Experiencia y Nivel. Desarrollo de lógica de combate en el servidor que actualiza Firestore. Implementación de motor de resurrección y penalización de XP. Actualización de UI con barra de experiencia dinámica.
 * **[Fecha: 2026-05-11] [Hora: 02:15] [Entorno: PC Trabajo]**
   * Acción: Corrección del flujo de selección de clases. Se eliminó la elección de clase del Wizard inicial para iniciar como "Aventureros Novatos". Implementación de la fase `"llegada_gremio"` tras el prólogo, donde el jugador elige su vocación definitiva mediante un evento narrativo especial en el Gremio, actualizando atributos y bonificadores en tiempo real.
+* **[Fecha: 2026-05-11] [Hora: 02:30] [Entorno: PC Trabajo]**
+  * Acción: Implementación de Trasfondos Dinámicos (IA) en el Wizard. Desarrollo de la lógica de "La Tríada" en el Gremio para asignar compañeros equilibrados automáticamente (Nombres y Actitud vía Groq). Creación del Agente de Diálogo para presentaciones formales e interacción con NPCs.

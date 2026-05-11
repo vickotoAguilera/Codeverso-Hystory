@@ -68,3 +68,34 @@ export async function sugerirNemesis(trasfondo: string): Promise<string[]> {
     return ["El Rey de las Sombras", "Malphas", "La Tejedora de Plagas"];
   }
 }
+
+/**
+ * Genera trasfondos adicionales utilizando IA.
+ */
+export async function generarTrasfondosIA(): Promise<{ nombre: string; lore: string }[]> {
+  try {
+    const prompt = `Genera 3 trasfondos trágicos y oscuros para un RPG de fantasía. 
+    Devuelve SOLO un JSON con un objeto que contenga un array 'trasfondos_extra', cada uno con 'nombre' y 'lore' (máx 20 palabras).`;
+
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "Eres un narrador de historias trágicas y oscuras. Responde exclusivamente en formato JSON."
+        },
+        { role: "user", content: prompt }
+      ],
+      model: "llama-3.3-versatile",
+      response_format: { type: "json_object" }
+    });
+
+    const content = completion.choices[0].message.content;
+    if (!content) return [];
+
+    const data = JSON.parse(content);
+    return data.trasfondos_extra || [];
+  } catch (error) {
+    console.error("Error al generar trasfondos IA:", error);
+    return [];
+  }
+}

@@ -1,9 +1,9 @@
 # Estado Actual y Traspaso de Entorno 
 
 * **Último Entorno:**  PC Trabajo 
-* **Punto Exacto de Detención:** Corrección del flujo de clases e implementación del evento de Selección en el Gremio.
-* **Contexto Pendiente:**  Desarrollar el Agente de Diálogo para interactuar con NPCs tras la selección de clase y el sistema de misiones iniciales.
+* **Punto Exacto de Detención:** Implementación de Trasfondos Dinámicos, Formación de la Tríada y Agente de Diálogo.
+* **Contexto Pendiente:**  Implementar el sistema de misiones (Questlog) y mejorar la UI del Gremio para incluir visualmente a los compañeros de la Tríada en la narrativa.
 * **Próxima Acción (Next Steps):**  
-  1. Probar el nuevo flujo: Creación (Aventurero Novato) -> Prólogo -> Selección de Clase en el Gremio.
-  2. Implementar `src/actions/dialogue.ts` para gestionar conversaciones contextuales con Groq.
-  3. Crear el componente `DialogueInterface` para interacciones fluidas con NPCs.
+  1. Crear la colección `misiones` en Firestore.
+  2. Implementar un componente `DialogueOverlay` para las conversaciones con el Agente de Diálogo.
+  3. Desarrollar la primera misión real: "El Bosque de los Susurros".
