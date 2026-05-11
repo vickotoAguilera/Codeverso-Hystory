@@ -1,8 +1,9 @@
 # Estado Actual y Traspaso de Entorno 
 
 * **Último Entorno:**  PC Trabajo 
-* **Punto Exacto de Detención:** Configuración de entorno Git y vinculación con repositorio remoto.
-* **Contexto Pendiente:**  Iniciar el proyecto base de Next.js e importar los componentes visuales de la carpeta de diseños. 
+* **Punto Exacto de Detención:** Inicialización de Next.js y configuración de estilos base "Shiny".
+* **Contexto Pendiente:**  Instalar dependencias necesarias (`npm install`), configurar la conexión con Groq SDK y crear los primeros componentes del panel de personaje.
 * **Próxima Acción (Next Steps):**  
-  1. Ejecutar `npx create-next-app@latest . --typescript --tailwind --eslint` para levantar la estructura del proyecto en la raíz actual.
-  2. Integrar los estilos de `C:\Users\Usuario\Documents\proyectos\uix_and_designs`.
+  1. Ejecutar `npm install` para instalar todas las dependencias de Next.js.
+  2. Crear la estructura de carpetas para los agentes de IA (`src/lib/agents`).
+  3. Implementar el `CharacterPanel` dinámico según lo definido en la visión del proyecto.

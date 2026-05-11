@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+:root {
+  /* Colores Base - Inspirados en VicTechWeb */
+  --background: #050505;
+  --foreground: #f0f0f0;
+  --card: #0a0a0a;
+  --card-foreground: #f0f0f0;
+  --primary: #40e6ff; /* Cian Brillante */
+  --primary-foreground: #000;
+  --secondary: #a640ff; /* Púrpura */
+  --accent: #ff4040; /* Rojo/Coral */
+  --border: #1a1a1a;
+  
+  /* Colores para animaciones Shiny */
+  --color-1: #ff4040;
+  --color-2: #a640ff;
+  --color-3: #40a6ff;
+  --color-4: #40e6ff;
+  --color-5: #b9ff40;
+  
+  --speed: 3s;
+  --radius: 12px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  
+  /* Animaciones */
+  --animate-shiny: shiny-shimmer 2s infinite linear;
+  --animate-aurora: aurora 60s linear infinite;
+}
+
+@keyframes shiny-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes aurora {
+  from { background-position: 50% 50%, 50% 50%; }
+  to { background-position: 350% 50%, 350% 50%; }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Clases Útiles para Botones Shiny */
+.btn-shiny {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, #1a1a1a, #2a2a2a, #1a1a1a);
+  background-size: 200% 100%;
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.btn-shiny:hover {
+  animation: shiny-shimmer 2s infinite linear;
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(64, 230, 255, 0.3);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, var(--color-4), var(--color-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
