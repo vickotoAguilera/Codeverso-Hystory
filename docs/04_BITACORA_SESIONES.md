@@ -16,3 +16,5 @@
   * Acción: Implementación del Sistema de Creación (Opción B). Actualización de modelos (Género, Compañeros, Tríada). Integración de Google Auth en Firebase. Creación de Server Action para sugerencia de nombres con Groq. Actualización del CharacterPanel para mostrar el grupo.
 * **[Fecha: 2026-05-11] [Hora: 00:15] [Entorno: PC Trabajo]**
   * Acción: Implementación del Compendio Estático y Wizard Optimizado. Creación de `src/data/compendium.ts` con Lore de Razas, Clases y Trasfondos. Desarrollo del `CharacterCreation.tsx` de 6 pasos. Integración de lógica de Prólogo y Amnesia en el Agente Narrador. Sincronización con Firestore para guardado de personajes y partidas.
+* **[Fecha: 2026-05-11] [Hora: 00:30] [Entorno: PC Trabajo]**
+  * Acción: Expansión masiva del Compendio Estático. Inclusión de 10 razas, 20 clases (Tanques, DPS Físicos, DPS Mágicos, Soportes) y 5 trasfondos con lore profundo y bonificadores equilibrados.
