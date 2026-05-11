@@ -5,7 +5,7 @@ export interface Atributos {
 }
 
 export type Genero = "hombre" | "mujer" | "no_binario";
-export type FaseJuego = "prologo" | "aventura";
+export type FaseJuego = "prologo" | "llegada_gremio" | "aventura";
 
 export interface Companero {
   id: string;

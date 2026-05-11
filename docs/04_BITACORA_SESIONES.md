@@ -30,3 +30,5 @@
   * Acción: Implementación de excepción controlada para entrada de nombre manual en el Wizard. Creación de input con validación Regex estricta (8 letras máx, sin números ni espacios) y estilos "Shiny".
 * **[Fecha: 2026-05-11] [Hora: 02:00] [Entorno: PC Trabajo]**
   * Acción: Implementación del Sistema de Daño Real, XP y Muerte. Actualización de modelos con Experiencia y Nivel. Desarrollo de lógica de combate en el servidor que actualiza Firestore. Implementación de motor de resurrección y penalización de XP. Actualización de UI con barra de experiencia dinámica.
+* **[Fecha: 2026-05-11] [Hora: 02:15] [Entorno: PC Trabajo]**
+  * Acción: Corrección del flujo de selección de clases. Se eliminó la elección de clase del Wizard inicial para iniciar como "Aventureros Novatos". Implementación de la fase `"llegada_gremio"` tras el prólogo, donde el jugador elige su vocación definitiva mediante un evento narrativo especial en el Gremio, actualizando atributos y bonificadores en tiempo real.

@@ -9,6 +9,8 @@ import { Personaje, Partida, RespuestaIA } from '@/types/game';
 import { CharacterPanel } from '@/components/game/CharacterPanel';
 import { generarNarrativa } from '@/actions/narrator';
 import { procesarCombate, resucitarPersonaje } from '@/actions/combat';
+import { elegirClaseGremio } from '@/actions/guild';
+import { CLASES } from '@/data/compendium';
 
 export default function GamePage() {
   const router = useRouter();
@@ -91,23 +93,24 @@ export default function GamePage() {
       }
 
       // Si estamos en prólogo...
+      if (currentPartida.faseJuego === 'prologo') {
         const promptPrologo = `El jugador ha elegido: "${eleccion}". Narra cómo la batalla contra ${currentChar.nemesis} llega a su fin. Es una derrota inevitable. El jugador recibe un golpe devastador, todo se vuelve oscuro y despierta sin recuerdos frente al Gremio de Aventureros.`;
         
         const nuevaNarrativa = await generarNarrativa(promptPrologo, currentChar, "prologo", []);
         
-        // Actualizar Firebase: Fase Aventura, HP 1
+        // Actualizar Firebase: Fase Llegada Gremio, HP 1
         const charRef = doc(db, "personajes", currentChar.id);
         const gameRef = doc(db, "partidas", currentPartida.id);
 
         await updateDoc(charRef, { hpActual: 1 });
         await updateDoc(gameRef, { 
-          faseJuego: "aventura",
+          faseJuego: "llegada_gremio",
           ultimaNarrativa: nuevaNarrativa,
           timestamp: Date.now()
         });
 
         setPersonaje({ ...currentChar, hpActual: 1 });
-        setPartida({ ...currentPartida, faseJuego: "aventura", ultimaNarrativa: nuevaNarrativa });
+        setPartida({ ...currentPartida, faseJuego: "llegada_gremio", ultimaNarrativa: nuevaNarrativa });
         setNarrativaActual(nuevaNarrativa);
       } else {
         // Fase Aventura normal
@@ -180,6 +183,29 @@ export default function GamePage() {
     }
   };
 
+  const handleSelectClass = async (claseId: string) => {
+    if (!personaje || !partida) return;
+    setActionLoading(true);
+
+    try {
+      const { nombreClase } = await elegirClaseGremio(personaje.id, partida.id, claseId);
+      
+      const promptAventura = `El jugador ha elegido su vocación: ${nombreClase}. Narra cómo se equipa en el Gremio y sale a su primera misión real para recuperar su honor y memoria.`;
+      const nuevaNarrativa = await generarNarrativa(promptAventura, personaje, "aventura", []);
+
+      // Actualizar estado local
+      const charSnap = await getDoc(doc(db, "personajes", personaje.id));
+      if (charSnap.exists()) setPersonaje(charSnap.data() as Personaje);
+      
+      setPartida({ ...partida, faseJuego: "aventura", ultimaNarrativa: nuevaNarrativa });
+      setNarrativaActual(nuevaNarrativa);
+    } catch (error) {
+      console.error("Error al elegir clase:", error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   if (loading || !personaje || !partida) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-background">
@@ -221,29 +247,60 @@ export default function GamePage() {
 
           {/* Opciones / Botones */}
           <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 mt-12 transition-all duration-500 ${actionLoading ? 'pointer-events-none grayscale opacity-20' : 'opacity-100'}`}>
-            {narrativaActual?.opciones.map((opcion) => (
-              <button
-                key={opcion.id}
-                onClick={() => {
-                  if (opcion.tipo_accion === 'combate') {
-                    handleCombatAction(opcion);
-                  } else {
-                    handleNextStep(opcion.texto_boton, partida, personaje);
-                  }
-                }}
-                className="btn-shiny p-5 rounded-2xl text-left flex flex-col gap-2 group hover:scale-[1.02] active:scale-[0.98] transition-all"
-              >
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold text-primary/40 uppercase tracking-widest">{opcion.tipo_accion}</span>
-                  {opcion.atributo_requerido && (
-                    <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
-                      {opcion.atributo_requerido.toUpperCase()}
-                    </span>
-                  )}
+            {partida.faseJuego === 'llegada_gremio' ? (
+              // Evento especial de Selección de Clase
+              <>
+                <div className="col-span-full mb-4 text-center">
+                  <p className="text-secondary font-bold uppercase tracking-widest animate-pulse">Maestro del Gremio:</p>
+                  <p className="text-foreground/80 italic">"Veo potencial en ti, amnésico. ¿Qué camino deseas forjar?"</p>
                 </div>
-                <span className="font-bold text-foreground group-hover:text-primary transition-colors">{opcion.texto_boton}</span>
-              </button>
-            ))}
+                {CLASES.map((clase) => (
+                  <button
+                    key={clase.id}
+                    onClick={() => handleSelectClass(clase.id)}
+                    className="btn-shiny p-5 rounded-2xl text-left flex flex-col gap-2 group hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-bold text-secondary/60 uppercase tracking-widest">VOCACIÓN</span>
+                      <div className="flex gap-2">
+                        {Object.entries(clase.bonificadores).filter(([_,v]) => v !== 0).map(([k,v]) => (
+                          <span key={k} className="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded border border-secondary/20">
+                            {k[0].toUpperCase()}{v > 0 ? '+' : ''}{v}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <span className="font-bold text-foreground group-hover:text-secondary transition-colors">{clase.nombre}</span>
+                    <p className="text-[10px] text-foreground/40 leading-tight line-clamp-2">{clase.lore}</p>
+                  </button>
+                ))}
+              </>
+            ) : (
+              // Bucle de Juego Normal
+              narrativaActual?.opciones.map((opcion) => (
+                <button
+                  key={opcion.id}
+                  onClick={() => {
+                    if (opcion.tipo_accion === 'combate') {
+                      handleCombatAction(opcion);
+                    } else {
+                      handleNextStep(opcion.texto_boton, partida, personaje);
+                    }
+                  }}
+                  className="btn-shiny p-5 rounded-2xl text-left flex flex-col gap-2 group hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-primary/40 uppercase tracking-widest">{opcion.tipo_accion}</span>
+                    {opcion.atributo_requerido && (
+                      <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
+                        {opcion.atributo_requerido.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <span className="font-bold text-foreground group-hover:text-primary transition-colors">{opcion.texto_boton}</span>
+                </button>
+              ))
+            )}
           </div>
         </div>
 

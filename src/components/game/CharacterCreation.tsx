@@ -15,7 +15,6 @@ export default function CharacterCreation() {
   const [selections, setSelections] = useState({
     genero: '' as Genero,
     raza: RAZAS[0],
-    clase: CLASES[0],
     trasfondo: TRASFONDOS[0],
     nombre: '',
     nemesis: ''
@@ -54,11 +53,11 @@ export default function CharacterCreation() {
     const characterId = crypto.randomUUID();
     const gameId = crypto.randomUUID();
 
-    // Calcular atributos base (10) + bonificadores
+    // Atributos iniciales planos en 10
     const finalAttributes = {
-      fuerza: 10 + selections.clase.bonificadores.fuerza,
-      agilidad: 10 + selections.clase.bonificadores.agilidad,
-      inteligencia: 10 + selections.clase.bonificadores.inteligencia
+      fuerza: 10,
+      agilidad: 10,
+      inteligencia: 10
     };
 
     try {
@@ -69,7 +68,7 @@ export default function CharacterCreation() {
         nombre: selections.nombre,
         genero: selections.genero,
         raza: selections.raza.nombre,
-        clase: selections.clase.nombre,
+        clase: "Aventurero Novato",
         trasfondo: selections.trasfondo.nombre,
         nemesis: selections.nemesis,
         hpActual: 20,
@@ -77,7 +76,8 @@ export default function CharacterCreation() {
         atributos: finalAttributes,
         inventario: [],
         nivel: 1,
-        experiencia: 0
+        experiencia: 0,
+        xpNecesaria: 100
       });
 
       // 2. Guardar Partida (Fase Prólogo)
@@ -111,7 +111,7 @@ export default function CharacterCreation() {
         <div className="w-full h-1 bg-border/30 rounded-full mb-8 overflow-hidden">
           <div 
             className="h-full bg-primary transition-all duration-500 shadow-[0_0_10px_rgba(64,230,255,0.5)]" 
-            style={{ width: `${(step / 6) * 100}%` }}
+            style={{ width: `${(step / 5) * 100}%` }}
           />
         </div>
 
@@ -160,31 +160,8 @@ export default function CharacterCreation() {
               </div>
             )}
 
-            {/* Paso 3: Clase */}
+            {/* Paso 3: Trasfondo */}
             {step === 3 && (
-              <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                <h2 className="text-3xl font-bold text-gradient mb-4">Tu vocación oculta</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-                  {CLASES.map((c) => (
-                    <button
-                      key={c.id}
-                      onClick={() => { setSelections({...selections, clase: c}); handleNext(); }}
-                      className={`p-6 rounded-2xl border transition-all text-left group ${selections.clase.id === c.id ? 'border-secondary bg-secondary/5' : 'border-border bg-card/50 hover:border-secondary/50'}`}
-                    >
-                      <h3 className="font-bold text-secondary text-xl mb-1 group-hover:text-gradient">{c.nombre}</h3>
-                      <p className="text-xs text-secondary/60 mb-3 font-mono">
-                        {Object.entries(c.bonificadores).filter(([_,v]) => v !== 0).map(([k,v]) => `${k.toUpperCase()} ${v > 0 ? '+' : ''}${v}`).join(" | ")}
-                      </p>
-                      <p className="text-sm text-foreground/60 leading-relaxed">{c.lore}</p>
-                    </button>
-                  ))}
-                </div>
-                <button onClick={handleBack} className="mt-8 text-foreground/40 hover:text-primary transition-colors uppercase text-xs font-bold tracking-widest">← Volver</button>
-              </div>
-            )}
-
-            {/* Paso 4: Trasfondo */}
-            {step === 4 && (
               <div className="animate-in fade-in slide-in-from-right-4 duration-500">
                 <h2 className="text-3xl font-bold text-gradient mb-4">Ecos del pasado</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
@@ -203,8 +180,8 @@ export default function CharacterCreation() {
               </div>
             )}
 
-            {/* Paso 5: Nombre (Manual) */}
-            {step === 5 && (
+            {/* Paso 4: Nombre (Manual) */}
+            {step === 4 && (
               <div className="animate-in fade-in slide-in-from-right-4 duration-500 text-center">
                 <h2 className="text-3xl font-bold text-gradient mb-4">¿Cómo te recordarán las leyendas?</h2>
                 <div className="mt-12 max-w-sm mx-auto flex flex-col gap-6">
@@ -241,8 +218,8 @@ export default function CharacterCreation() {
               </div>
             )}
 
-            {/* Paso 6: Némesis (IA) */}
-            {step === 6 && (
+            {/* Paso 5: Némesis (IA) */}
+            {step === 5 && (
               <div className="animate-in fade-in slide-in-from-right-4 duration-500 text-center">
                 <h2 className="text-3xl font-bold text-accent mb-4 animate-pulse">Tu destino está marcado...</h2>
                 <p className="text-foreground/60 text-sm mb-12">¿Quién fue el arquitecto de tu desgracia?</p>
