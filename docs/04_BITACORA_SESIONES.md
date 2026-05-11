@@ -34,3 +34,5 @@
   * Acción: Corrección del flujo de selección de clases. Se eliminó la elección de clase del Wizard inicial para iniciar como "Aventureros Novatos". Implementación de la fase `"llegada_gremio"` tras el prólogo, donde el jugador elige su vocación definitiva mediante un evento narrativo especial en el Gremio, actualizando atributos y bonificadores en tiempo real.
 * **[Fecha: 2026-05-11] [Hora: 02:30] [Entorno: PC Trabajo]**
   * Acción: Implementación de Trasfondos Dinámicos (IA) en el Wizard. Desarrollo de la lógica de "La Tríada" en el Gremio para asignar compañeros equilibrados automáticamente (Nombres y Actitud vía Groq). Creación del Agente de Diálogo para presentaciones formales e interacción con NPCs.
+* **[Fecha: 2026-05-11] [Hora: 02:45] [Entorno: PC Trabajo]**
+  * Acción: Resolución de errores de tipado y ejecución en `guild.ts`. Se corrigió la importación de la interfaz `Clase`, se añadió el campo `actitud` al modelo de `Compañero` y se aseguró la compatibilidad de `crypto.randomUUID()` en el servidor. Verificación de build exitosa.

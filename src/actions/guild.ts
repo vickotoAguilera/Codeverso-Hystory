@@ -2,9 +2,10 @@
 
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
-import { Personaje, Clase, Companero } from "@/types/game";
-import { CLASES } from "@/data/compendium";
+import { Personaje, Companero } from "@/types/game";
+import { CLASES, Clase } from "@/data/compendium";
 import Groq from "groq-sdk";
+import crypto from "crypto";
 
 const groq = new Groq({ 
   apiKey: process.env.GROQ_API_KEY_NARRADOR 
@@ -67,10 +68,10 @@ export async function elegirClaseGremio(personajeId: string, partidaId: string, 
   const grupo: Companero[] = rawCompaneros.map((c: any) => ({
     id: crypto.randomUUID(),
     nombre: c.nombre,
-    clase: c.clase_especifica as any, // Se mapeará a la interfaz Compañero simplificada
+    clase: c.clase_especifica,
     hpMax: 20,
     hpActual: 20,
-    actitud: c.actitud // Opcional, para el Agente de Diálogo
+    actitud: c.actitud
   }));
 
   // 3. Atributos base (10) + bonificadores

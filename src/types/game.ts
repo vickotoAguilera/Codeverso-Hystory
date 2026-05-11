@@ -10,9 +10,10 @@ export type FaseJuego = "prologo" | "llegada_gremio" | "aventura";
 export interface Companero {
   id: string;
   nombre: string;
-  clase: "guerrero_tanque" | "clerigo_soporte";
+  clase: string;
   hpMax: number;
   hpActual: number;
+  actitud?: string;
 }
 
 export interface Personaje {
