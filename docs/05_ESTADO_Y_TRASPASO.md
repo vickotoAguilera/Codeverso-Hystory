@@ -1,9 +1,9 @@
 # Estado Actual y Traspaso de Entorno 
 
 * **Último Entorno:**  PC Trabajo 
-* **Punto Exacto de Detención:** Expansión masiva del Compendio Estático y Lore del juego.
-* **Contexto Pendiente:**  Crear las páginas de la aplicación que consuman el Wizard (`/create`) y la página principal del juego (`/game`).
+* **Punto Exacto de Detención:** Ensamblaje de la ruta `/create` y conexión de la Landing Page.
+* **Contexto Pendiente:**  Implementar la pantalla principal del juego (`/game`) que manejará la narrativa del prólogo y la aventura.
 * **Próxima Acción (Next Steps):**  
-  1. Crear `src/app/create/page.tsx` para renderizar el `CharacterCreation`.
-  2. Desarrollar la lógica de la página `src/app/game/page.tsx` para manejar el flujo de juego real.
-  3. Realizar pruebas integrales de flujo: Login -> Creación -> Prólogo -> Despertar en Nivel 1.
+  1. Crear la ruta `src/app/game/page.tsx`.
+  2. Implementar el motor de estados de juego para manejar la transición Prólogo -> Amnesia -> Aventura.
+  3. Integrar el `CharacterPanel` con los datos reales de Firestore.

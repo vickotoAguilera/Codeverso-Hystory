@@ -18,3 +18,5 @@
   * Acción: Implementación del Compendio Estático y Wizard Optimizado. Creación de `src/data/compendium.ts` con Lore de Razas, Clases y Trasfondos. Desarrollo del `CharacterCreation.tsx` de 6 pasos. Integración de lógica de Prólogo y Amnesia en el Agente Narrador. Sincronización con Firestore para guardado de personajes y partidas.
 * **[Fecha: 2026-05-11] [Hora: 00:30] [Entorno: PC Trabajo]**
   * Acción: Expansión masiva del Compendio Estático. Inclusión de 10 razas, 20 clases (Tanques, DPS Físicos, DPS Mágicos, Soportes) y 5 trasfondos con lore profundo y bonificadores equilibrados.
+* **[Fecha: 2026-05-11] [Hora: 00:45] [Entorno: PC Trabajo]**
+  * Acción: Implementación de la ruta `/create` y ensamblaje del Wizard. Conexión de la Landing Page con Firebase Auth (Anónimo y Google). Configuración del App Router para la creación de personajes y redirección segura.
