@@ -21,15 +21,23 @@ export default function CharacterCreation() {
     nemesis: ''
   });
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [nameError, setNameError] = useState('');
 
   const handleNext = () => setStep(s => s + 1);
   const handleBack = () => setStep(s => s - 1);
 
-  const fetchNames = async (g: Genero, r: string) => {
-    setLoading(true);
-    const names = await sugerirNombres(g, r);
-    setSuggestions(names);
-    setLoading(false);
+  const validateName = (name: string) => {
+    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ]{1,8}$/;
+    if (name.length === 0) {
+      setNameError('');
+      return false;
+    }
+    if (!regex.test(name)) {
+      setNameError('Solo se permiten hasta 8 letras, sin espacios ni números.');
+      return false;
+    }
+    setNameError('');
+    return true;
   };
 
   const fetchNemesis = async (t: string) => {
@@ -183,7 +191,7 @@ export default function CharacterCreation() {
                   {TRASFONDOS.map((t) => (
                     <button
                       key={t.id}
-                      onClick={() => { setSelections({...selections, trasfondo: t}); fetchNames(selections.genero, selections.raza.nombre); handleNext(); }}
+                      onClick={() => { setSelections({...selections, trasfondo: t}); handleNext(); }}
                       className={`p-6 rounded-2xl border transition-all text-left group ${selections.trasfondo.id === t.id ? 'border-accent bg-accent/5' : 'border-border bg-card/50 hover:border-accent/50'}`}
                     >
                       <h3 className="font-bold text-accent text-xl mb-2 group-hover:text-gradient">{t.nombre}</h3>
@@ -195,25 +203,38 @@ export default function CharacterCreation() {
               </div>
             )}
 
-            {/* Paso 5: Nombre (IA) */}
+            {/* Paso 5: Nombre (Manual) */}
             {step === 5 && (
               <div className="animate-in fade-in slide-in-from-right-4 duration-500 text-center">
                 <h2 className="text-3xl font-bold text-gradient mb-4">¿Cómo te recordarán las leyendas?</h2>
-                <div className="grid grid-cols-1 gap-4 mt-12 max-w-sm mx-auto">
-                  {suggestions.map((name) => (
-                    <button
-                      key={name}
-                      onClick={() => { setSelections({...selections, nombre: name}); fetchNemesis(selections.trasfondo.lore); handleNext(); }}
-                      className="btn-shiny py-5 rounded-2xl text-xl font-bold tracking-widest"
-                    >
-                      {name}
-                    </button>
-                  ))}
-                  <button 
-                    onClick={() => fetchNames(selections.genero, selections.raza.nombre)}
-                    className="mt-4 text-primary/60 hover:text-primary text-xs font-mono uppercase underline decoration-primary/20"
+                <div className="mt-12 max-w-sm mx-auto flex flex-col gap-6">
+                  <div className="relative group">
+                    <input 
+                      type="text"
+                      autoFocus
+                      placeholder="Escribe tu nombre..."
+                      value={selections.nombre}
+                      maxLength={8}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelections({...selections, nombre: val});
+                        validateName(val);
+                      }}
+                      className={`w-full bg-background/50 border-2 rounded-2xl px-6 py-4 text-center text-2xl font-bold tracking-widest outline-none transition-all ${nameError ? 'border-accent/50 text-accent shadow-[0_0_15px_rgba(255,64,64,0.2)]' : 'border-border focus:border-primary focus:shadow-[0_0_20px_rgba(64,230,255,0.2)] text-primary'}`}
+                    />
+                    {nameError && (
+                      <p className="mt-4 text-xs font-bold text-accent uppercase tracking-tighter animate-bounce">
+                        {nameError}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <button
+                    disabled={!validateName(selections.nombre)}
+                    onClick={() => { fetchNemesis(selections.trasfondo.lore); handleNext(); }}
+                    className={`btn-shiny py-5 rounded-2xl text-xl font-bold tracking-widest transition-all ${!validateName(selections.nombre) ? 'opacity-20 grayscale pointer-events-none' : 'opacity-100'}`}
                   >
-                    Regenerar otros nombres
+                    CONTINUAR
                   </button>
                 </div>
                 <button onClick={handleBack} className="mt-12 text-foreground/40 hover:text-primary transition-colors uppercase text-xs font-bold tracking-widest block mx-auto">← Volver</button>

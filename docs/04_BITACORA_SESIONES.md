@@ -26,3 +26,5 @@
   * Acción: Simplificación del sistema de autenticación. Se eliminó el login anónimo para usar exclusivamente Google Auth. Implementación de lógica de redirección inteligente: detección automática de personajes existentes en Firestore para dirigir al usuario a "Nueva Partida" o "Continuar Aventura".
 * **[Fecha: 2026-05-11] [Hora: 01:30] [Entorno: PC Trabajo]**
   * Acción: Implementación del Core Game Loop en la ruta `/game`. Desarrollo del motor de narrativa que gestiona el Prólogo (derrota programada contra el Némesis) y la transición automática a la fase de Aventura. Integración del CharacterPanel con datos reales de Firestore y manejo de Server Actions para combate y narrativa.
+* **[Fecha: 2026-05-11] [Hora: 01:45] [Entorno: PC Trabajo]**
+  * Acción: Implementación de excepción controlada para entrada de nombre manual en el Wizard. Creación de input con validación Regex estricta (8 letras máx, sin números ni espacios) y estilos "Shiny".
