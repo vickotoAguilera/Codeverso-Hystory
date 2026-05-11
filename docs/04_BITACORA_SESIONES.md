@@ -14,3 +14,5 @@
   * Acción: Implementación de la arquitectura core del juego: Server Actions para Agente Narrador y Agente de Combate. Creación de tipos de datos en TypeScript. Desarrollo del componente `CharacterPanel` (Client Component) con estilos Shiny y React 19. Definición de la estructura de colecciones para Firestore.
 * **[Fecha: 2026-05-10] [Hora: 23:50] [Entorno: PC Trabajo]**
   * Acción: Implementación del Sistema de Creación (Opción B). Actualización de modelos (Género, Compañeros, Tríada). Integración de Google Auth en Firebase. Creación de Server Action para sugerencia de nombres con Groq. Actualización del CharacterPanel para mostrar el grupo.
+* **[Fecha: 2026-05-11] [Hora: 00:15] [Entorno: PC Trabajo]**
+  * Acción: Implementación del Compendio Estático y Wizard Optimizado. Creación de `src/data/compendium.ts` con Lore de Razas, Clases y Trasfondos. Desarrollo del `CharacterCreation.tsx` de 6 pasos. Integración de lógica de Prólogo y Amnesia en el Agente Narrador. Sincronización con Firestore para guardado de personajes y partidas.

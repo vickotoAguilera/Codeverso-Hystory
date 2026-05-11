@@ -1,9 +1,9 @@
 # Estado Actual y Traspaso de Entorno 
 
 * **Último Entorno:**  PC Trabajo 
-* **Punto Exacto de Detención:** Implementación del Sistema de Creación y Grupo (Opción B) y Auth de Google.
-* **Contexto Pendiente:**  Crear la interfaz de usuario para el flujo de pantallas (Género -> Nombre -> Inicio) y conectar con Firestore.
+* **Punto Exacto de Detención:** Implementación completa del Wizard de Creación, Compendio y Lógica de Prólogo.
+* **Contexto Pendiente:**  Crear las páginas de la aplicación que consuman el Wizard (`/create`) y la página principal del juego (`/game`).
 * **Próxima Acción (Next Steps):**  
-  1. Desarrollar `src/app/create-character/page.tsx` con el flujo de 3 pantallas.
-  2. Implementar la persistencia inicial del personaje y la partida en Firestore tras la creación.
-  3. Probar el login con Google y la vinculación con el nuevo personaje.
+  1. Crear `src/app/create/page.tsx` para renderizar el `CharacterCreation`.
+  2. Desarrollar la lógica de la página `src/app/game/page.tsx` para manejar el cambio de fase de "prologo" a "aventura" tras el primer combate.
+  3. Realizar pruebas integrales de flujo: Login -> Creación -> Prólogo -> Despertar en Nivel 1.

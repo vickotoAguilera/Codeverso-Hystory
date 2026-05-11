@@ -5,6 +5,7 @@ export interface Atributos {
 }
 
 export type Genero = "hombre" | "mujer" | "no_binario";
+export type FaseJuego = "prologo" | "aventura";
 
 export interface Companero {
   id: string;
@@ -19,6 +20,10 @@ export interface Personaje {
   usuarioId: string;
   nombre: string;
   genero: Genero;
+  raza: string;
+  clase: string;
+  trasfondo: string;
+  nemesis: string;
   hpActual: number;
   hpMax: number;
   atributos: Atributos;
@@ -43,6 +48,7 @@ export interface Partida {
   id: string;
   personajeId: string;
   grupo: Companero[];
+  faseJuego: FaseJuego;
   ultimaNarrativa: RespuestaIA;
   timestamp: number;
 }
