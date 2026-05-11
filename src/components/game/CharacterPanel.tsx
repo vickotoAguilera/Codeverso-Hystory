@@ -1,13 +1,14 @@
 "use client";
 
 import React from 'react';
-import { Personaje } from '@/types/game';
+import { Personaje, Companero } from '@/types/game';
 
 interface Props {
   personaje: Personaje;
+  grupo?: Companero[];
 }
 
-export const CharacterPanel: React.FC<Props> = ({ personaje }) => {
+export const CharacterPanel: React.FC<Props> = ({ personaje, grupo = [] }) => {
   const hpPercentage = (personaje.hpActual / personaje.hpMax) * 100;
 
   return (
@@ -18,11 +19,11 @@ export const CharacterPanel: React.FC<Props> = ({ personaje }) => {
           {personaje.nombre}
         </h2>
         <span className="text-xs text-foreground/50 font-mono">
-          NIVEL {personaje.nivel} • EXPLORADOR
+          NIVEL {personaje.nivel} • {personaje.genero.toUpperCase()}
         </span>
       </div>
 
-      {/* HP Bar */}
+      {/* HP Bar Jugador */}
       <div className="flex flex-col gap-2">
         <div className="flex justify-between text-xs font-mono">
           <span className="text-foreground/70">PUNTOS DE VIDA</span>
@@ -54,6 +55,27 @@ export const CharacterPanel: React.FC<Props> = ({ personaje }) => {
         </div>
       </div>
 
+      {/* Grupo */}
+      {grupo.length > 0 && (
+        <div className="flex flex-col gap-4 pt-4 border-t border-border/50">
+          <h3 className="text-xs font-bold text-foreground/40 uppercase tracking-widest">Grupo</h3>
+          {grupo.map((miembro) => (
+            <div key={miembro.id} className="flex flex-col gap-1.5">
+              <div className="flex justify-between text-[10px] font-mono">
+                <span className="text-foreground/80">{miembro.nombre} <span className="text-foreground/40 text-[9px]">({miembro.clase.split('_')[0]})</span></span>
+                <span className="text-primary/70">{miembro.hpActual}/{miembro.hpMax}</span>
+              </div>
+              <div className="h-1 w-full bg-border/50 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary/60 transition-all duration-500"
+                  style={{ width: `${(miembro.hpActual / miembro.hpMax) * 100}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Inventario */}
       <div className="flex flex-col gap-3">
         <h3 className="text-xs font-bold text-foreground/40 uppercase tracking-widest">Inventario</h3>
@@ -69,9 +91,6 @@ export const CharacterPanel: React.FC<Props> = ({ personaje }) => {
           )}
         </div>
       </div>
-
-      {/* Decorative Shiny Element */}
-      <div className="absolute -bottom-1 -right-1 w-20 h-20 bg-primary/5 blur-3xl pointer-events-none" />
     </div>
   );
 };

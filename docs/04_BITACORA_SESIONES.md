@@ -12,3 +12,5 @@
   * Acción: Creación de `RESUMEN_PARA_GEMINI.md` para facilitar la planificación externa con otra IA. Sincronización final de la sesión en GitHub.
 * **[Fecha: 2026-05-10] [Hora: 23:30] [Entorno: PC Trabajo]**
   * Acción: Implementación de la arquitectura core del juego: Server Actions para Agente Narrador y Agente de Combate. Creación de tipos de datos en TypeScript. Desarrollo del componente `CharacterPanel` (Client Component) con estilos Shiny y React 19. Definición de la estructura de colecciones para Firestore.
+* **[Fecha: 2026-05-10] [Hora: 23:50] [Entorno: PC Trabajo]**
+  * Acción: Implementación del Sistema de Creación (Opción B). Actualización de modelos (Género, Compañeros, Tríada). Integración de Google Auth en Firebase. Creación de Server Action para sugerencia de nombres con Groq. Actualización del CharacterPanel para mostrar el grupo.

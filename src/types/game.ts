@@ -4,10 +4,21 @@ export interface Atributos {
   inteligencia: number;
 }
 
+export type Genero = "hombre" | "mujer" | "no_binario";
+
+export interface Companero {
+  id: string;
+  nombre: string;
+  clase: "guerrero_tanque" | "clerigo_soporte";
+  hpMax: number;
+  hpActual: number;
+}
+
 export interface Personaje {
   id: string;
   usuarioId: string;
   nombre: string;
+  genero: Genero;
   hpActual: number;
   hpMax: number;
   atributos: Atributos;
@@ -31,6 +42,7 @@ export interface RespuestaIA {
 export interface Partida {
   id: string;
   personajeId: string;
+  grupo: Companero[];
   ultimaNarrativa: RespuestaIA;
   timestamp: number;
 }

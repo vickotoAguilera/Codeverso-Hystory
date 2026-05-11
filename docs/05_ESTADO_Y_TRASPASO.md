@@ -1,9 +1,9 @@
 # Estado Actual y Traspaso de Entorno 
 
 * **Último Entorno:**  PC Trabajo 
-* **Punto Exacto de Detención:** Implementación de la lógica core (Agentes Narrador/Combate) y Panel de Personaje UI.
-* **Contexto Pendiente:**  Implementar el guardado dinámico en Firestore y conectar la UI de la landing page con el inicio de la narrativa real.
+* **Punto Exacto de Detención:** Implementación del Sistema de Creación y Grupo (Opción B) y Auth de Google.
+* **Contexto Pendiente:**  Crear la interfaz de usuario para el flujo de pantallas (Género -> Nombre -> Inicio) y conectar con Firestore.
 * **Próxima Acción (Next Steps):**  
-  1. Crear la vista principal del juego (`src/app/game/page.tsx`) que integre el `CharacterPanel` y el flujo de narrativa.
-  2. Implementar funciones de Firestore para `setDoc` y `getDoc` del estado del personaje.
-  3. Conectar el botón "NUEVA PARTIDA" con la primera llamada al Agente Narrador.
+  1. Desarrollar `src/app/create-character/page.tsx` con el flujo de 3 pantallas.
+  2. Implementar la persistencia inicial del personaje y la partida en Firestore tras la creación.
+  3. Probar el login con Google y la vinculación con el nuevo personaje.
