@@ -24,3 +24,5 @@
   * Acción: Resolución de error de Firebase (auth/admin-restricted-operation). Implementación de manejo de errores en la Landing Page para notificar al usuario sobre la necesidad de habilitar el login anónimo en Firebase Console.
 * **[Fecha: 2026-05-11] [Hora: 01:10] [Entorno: PC Trabajo]**
   * Acción: Simplificación del sistema de autenticación. Se eliminó el login anónimo para usar exclusivamente Google Auth. Implementación de lógica de redirección inteligente: detección automática de personajes existentes en Firestore para dirigir al usuario a "Nueva Partida" o "Continuar Aventura".
+* **[Fecha: 2026-05-11] [Hora: 01:30] [Entorno: PC Trabajo]**
+  * Acción: Implementación del Core Game Loop en la ruta `/game`. Desarrollo del motor de narrativa que gestiona el Prólogo (derrota programada contra el Némesis) y la transición automática a la fase de Aventura. Integración del CharacterPanel con datos reales de Firestore y manejo de Server Actions para combate y narrativa.
