@@ -1,9 +1,9 @@
 # Estado Actual y Traspaso de Entorno 
 
 * **Último Entorno:**  PC Trabajo 
-* **Punto Exacto de Detención:** Ensamblaje de la ruta `/create` y conexión de la Landing Page.
-* **Contexto Pendiente:**  Implementar la pantalla principal del juego (`/game`) que manejará la narrativa del prólogo y la aventura.
+* **Punto Exacto de Detención:** Corrección de error de Auth y robustez en la Landing Page.
+* **Contexto Pendiente:**  Asegurarse de que el usuario habilite "Anonymous Auth" en Firebase o use Google. Próximo paso: Pantalla de juego principal.
 * **Próxima Acción (Next Steps):**  
-  1. Crear la ruta `src/app/game/page.tsx`.
-  2. Implementar el motor de estados de juego para manejar la transición Prólogo -> Amnesia -> Aventura.
-  3. Integrar el `CharacterPanel` con los datos reales de Firestore.
+  1. El usuario debe habilitar "Anonymous Sign-in" en su consola Firebase si desea usar el botón "NUEVA PARTIDA" directamente.
+  2. Crear la ruta `src/app/game/page.tsx` para la narrativa.
+  3. Implementar el motor de transición Prólogo -> Aventura.

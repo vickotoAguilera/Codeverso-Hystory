@@ -20,3 +20,5 @@
   * Acción: Expansión masiva del Compendio Estático. Inclusión de 10 razas, 20 clases (Tanques, DPS Físicos, DPS Mágicos, Soportes) y 5 trasfondos con lore profundo y bonificadores equilibrados.
 * **[Fecha: 2026-05-11] [Hora: 00:45] [Entorno: PC Trabajo]**
   * Acción: Implementación de la ruta `/create` y ensamblaje del Wizard. Conexión de la Landing Page con Firebase Auth (Anónimo y Google). Configuración del App Router para la creación de personajes y redirección segura.
+* **[Fecha: 2026-05-11] [Hora: 00:55] [Entorno: PC Trabajo]**
+  * Acción: Resolución de error de Firebase (auth/admin-restricted-operation). Implementación de manejo de errores en la Landing Page para notificar al usuario sobre la necesidad de habilitar el login anónimo en Firebase Console.

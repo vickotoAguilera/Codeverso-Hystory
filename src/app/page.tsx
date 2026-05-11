@@ -10,14 +10,20 @@ export default function Home() {
 
   const handleStartGame = async () => {
     try {
-      // Intentamos login anónimo si no hay usuario, para simplificar el flujo inicial
-      // El usuario puede elegir Google después si lo desea
+      // Intentamos login anónimo si no hay usuario
       if (!auth.currentUser) {
         await signInAnonymously(auth);
       }
       router.push('/create');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error al iniciar sesión:", error);
+      
+      // Si el error es 'admin-restricted-operation', es porque el login anónimo está desactivado en Firebase
+      if (error.code === 'auth/admin-restricted-operation') {
+        alert("El inicio de sesión anónimo está desactivado en Firebase Console. Por favor, actívalo en 'Authentication > Sign-in method' o utiliza el botón 'INICIAR CON GOOGLE'.");
+      } else {
+        router.push('/create'); // Intentamos ir de todas formas, el Wizard manejará si no hay Auth
+      }
     }
   };
 
