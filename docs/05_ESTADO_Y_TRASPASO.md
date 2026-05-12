@@ -1,14 +1,14 @@
 # Estado Actual y Traspaso de Entorno 
 
 * **Último Entorno:** PC Casa
-* **Punto Exacto de Detención:** Resolución de errores de build y tipado tras implementar el sistema de Audio R2 y la UI de 5 Slots.
+* **Punto Exacto de Detención:** Resolución de error de build en Cloudflare relacionado con la propiedad `subtipo` en los objetos del inventario.
 
 ## Contexto Pendiente:
-Hemos finalizado una sesión intensa donde se han implementado pilares fundamentales del motor RPG:
-1. **UI Táctica de 5 Slots**: Sistema de combate refinado con slots fijos (Ataque, Defensa, Ultimate) y dinámicos (Habilidades IA).
-2. **Audio Manager R2**: Sistema de música y SFX por streaming desde Cloudflare R2 con crossfade y pre-carga.
-3. **Seeding de Datos**: Script automático para poblar Firestore con enemigos e items de prueba.
-4. **Bulk Rename**: Herramienta para preparar los archivos de música para la nube.
+Hemos finalizado una sesión intensa donde se han implementado pilares fundamentales del motor RPG y se han resuelto los bloqueos de despliegue:
+1. **UI Táctica de 5 Slots**: Sistema de combate refinado.
+2. **Audio Manager R2**: Streaming de audio con crossfade.
+3. **Seeding de Datos**: Script para Firestore actualizado con nuevos tipos de objetos.
+4. **Build Fixes**: Se corrigieron errores de sintaxis y tipado (`subtipo`, renderizado de inventario) para asegurar el despliegue exitoso en Cloudflare.
 
 ## Próxima Acción (Next Steps):
 1. **Subida a R2**: El usuario debe subir los 42 archivos de la carpeta `./music/` (ya renombrados) a su bucket de Cloudflare R2.

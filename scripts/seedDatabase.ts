@@ -58,6 +58,7 @@ interface ObjetoBase {
   nombre: string;
   lore: string;
   tipo: "arma" | "armadura" | "accesorio" | "consumible";
+  subtipo?: "revestimiento" | "pocion" | "utilidad";
   slot?: string;
   bonificadores: Partial<Atributos>;
 }
@@ -139,6 +140,7 @@ const ITEMS: ObjetoBase[] = [
     nombre: "Poción de Vida Menor",
     lore: "Un brebaje rojizo que huele a fresas silvestres y magia.",
     tipo: "consumible",
+    subtipo: "pocion",
     bonificadores: {}
   },
   {
@@ -146,6 +148,7 @@ const ITEMS: ObjetoBase[] = [
     nombre: "Barniz de Fuego",
     lore: "Al aplicarlo en el arma, esta emite un calor abrasador.",
     tipo: "consumible",
+    subtipo: "revestimiento",
     bonificadores: {}
   },
   {

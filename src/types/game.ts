@@ -67,6 +67,7 @@ export interface Objeto {
   nombre: string;
   lore: string;
   tipo: "arma" | "armadura" | "accesorio" | "consumible";
+  subtipo?: "revestimiento" | "pocion" | "utilidad";
   slot?: SlotEquipamiento;
   bonificadores: Partial<Atributos>;
   equipado?: boolean;
