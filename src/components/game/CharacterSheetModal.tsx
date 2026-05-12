@@ -47,7 +47,7 @@ export const CharacterSheetModal: React.FC<Props> = ({ entidad, isOpen, onClose,
               {Object.entries(stats).map(([key, val]) => (
                 <div key={key} className="bg-black/40 border border-white/5 rounded-2xl p-4 text-center group hover:border-primary/30 transition-all">
                   <p className="text-[10px] font-black text-white/40 uppercase mb-1 tracking-widest">{key}</p>
-                  <p className="text-2xl font-black text-primary">{val}</p>
+                  <p className="text-2xl font-black text-primary">{val as React.ReactNode}</p>
                 </div>
               ))}
             </div>
@@ -70,7 +70,7 @@ export const CharacterSheetModal: React.FC<Props> = ({ entidad, isOpen, onClose,
                         <div className="flex gap-2">
                           {Object.entries(item.bonificadores).map(([s, v]) => (
                             <span key={s} className="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold">
-                              {s[0].toUpperCase()}+{v}
+                              {s[0].toUpperCase()}+{v as React.ReactNode}
                             </span>
                           ))}
                         </div>
@@ -93,7 +93,7 @@ export const CharacterSheetModal: React.FC<Props> = ({ entidad, isOpen, onClose,
                   <button 
                     key={item.id}
                     onClick={() => {
-                      if (item.subtipo === "revestimiento") {
+                      if ((item as any).subtipo === "revestimiento") {
                         // Invocamos la acción de aplicar revestimiento (debe ser pasada como prop o manejada en el padre)
                         console.log("Usando revestimiento:", item.nombre);
                       } else if (item.slot) {

@@ -57,4 +57,4 @@
 * **[Fecha: 2026-05-11] [Hora: 21:00] [Entorno: PC Casa]**
   * Acción: Resolución de errores críticos de build y tipado. Se corrigió un error de sintaxis en `page.tsx` relacionado con el anidamiento de etiquetas JSX y se resolvió un fallo de tipado en `CharacterPanel.tsx` al renderizar objetos del inventario. Verificación de integridad de tipos en `game.ts`.
 * **[Fecha: 2026-05-11] [Hora: 21:15] [Entorno: PC Casa]**
-  * Acción: Resolución de error de build en Cloudflare. Se añadió la propiedad opcional `subtipo` a la interfaz `Objeto` en `game.ts` y se actualizó `CharacterSheetModal.tsx` y `seedDatabase.ts` para ser coherentes con este cambio. Esto permite el uso de "revestimientos" y "pociones" en la lógica del inventario.
+  * Acción: Resolución de error de build en Cloudflare. Se añadió la propiedad opcional `subtipo` a la interfaz `Objeto` en `game.ts` y se aplicó un casting defensivo en `CharacterSheetModal.tsx` para asegurar que el compilador de Cloudflare reconozca la propiedad. También se corrigieron advertencias de tipado en el renderizado de atributos y bonificadores.
