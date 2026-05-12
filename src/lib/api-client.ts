@@ -28,7 +28,10 @@ export async function generarTrasfondosIA(): Promise<{ nombre: string; lore: str
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ action: "generarTrasfondosIA" }),
   });
-  if (!res.ok) return [];
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || `Error ${res.status} en generarTrasfondosIA`);
+  }
   return res.json();
 }
 
@@ -45,7 +48,10 @@ export async function generarNarrativa(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ contextoActual, personaje, fase, grupo }),
   });
-  if (!res.ok) throw new Error("Error en la comunicación con el Agente Narrador");
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || `Error ${res.status} en el Agente Narrador`);
+  }
   return res.json();
 }
 
