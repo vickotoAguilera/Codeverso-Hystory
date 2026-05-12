@@ -144,7 +144,7 @@ export interface RespuestaIA {
 
 export interface LogEntry {
   id: string;
-  tipo: "combate" | "sistema" | "loot";
+  tipo: "combate" | "sistema" | "loot" | "critico" | "sinergia";
   mensaje: string;
   timestamp: number;
   isCritical?: boolean;
