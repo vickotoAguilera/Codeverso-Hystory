@@ -8,10 +8,10 @@ import { collection, query, where, getDocs, doc, updateDoc, getDoc } from 'fireb
 import { Personaje, Partida, RespuestaIA } from '@/types/game';
 import { CharacterPanel } from '@/components/game/CharacterPanel';
 import { GuildManagement } from '@/components/game/GuildManagement';
-import { generarNarrativa } from '@/actions/narrator';
-import { procesarCombate, resucitarPersonaje } from '@/actions/combat';
-import { elegirClaseGremio, gestionarGrupo } from '@/actions/guild';
-import { hablarConNPC } from '@/actions/dialogue';
+import { generarNarrativa } from '@/lib/api-client';
+import { procesarCombate, resucitarPersonaje } from '@/lib/api-client';
+import { elegirClaseGremio, gestionarGrupo } from '@/lib/api-client';
+import { hablarConNPC } from '@/lib/api-client';
 import { CLASES } from '@/data/compendium';
 import { Companero, AudioTrackKey } from '@/types/game';
 import { useAudio } from '@/context/AudioContext';
@@ -284,7 +284,7 @@ export default function GamePage() {
       
       const nuevaNarrativa: RespuestaIA = {
         narrativa: responseDialogue.dialogo,
-        opciones: responseDialogue.opciones_respuesta.map(o => ({
+        opciones: responseDialogue.opciones_respuesta.map((o: any) => ({
           id: o.id,
           texto_boton: o.texto,
           tipo_accion: "narrativa"

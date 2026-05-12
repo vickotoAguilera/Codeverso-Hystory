@@ -1,5 +1,5 @@
 
-export const R2_URL_BASE = "https://tu-r2-public-url.com"; // REEMPLAZAR CON TU URL DE CLOUDFLARE R2
+export const R2_URL_BASE = process.env.NEXT_PUBLIC_R2_URL_BASE || "";
 
 export const AUDIO_MAPPING = {
   // Temas Ambientales / Exploración

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { RAZAS, CLASES, TRASFONDOS } from '@/data/compendium';
 import { Genero } from '@/types/game';
-import { sugerirNombres, sugerirNemesis, generarTrasfondosIA } from '@/actions/character';
+import { sugerirNombres, sugerirNemesis, generarTrasfondosIA } from '@/lib/api-client';
 import { db, auth } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';

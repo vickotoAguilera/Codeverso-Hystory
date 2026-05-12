@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { Enemigo } from '@/types/game';
-import { generateAndStorePortrait } from '@/actions/visuals';
+import { generateAndStorePortrait } from '@/lib/api-client';
 import Image from 'next/image';
 
 interface Props {
