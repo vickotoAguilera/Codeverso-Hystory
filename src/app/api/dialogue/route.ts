@@ -65,9 +65,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(JSON.parse(content || '{}') as DialogueResponse);
   } catch (error) {
     console.error("Error en Agente de Diálogo:", error);
-    return NextResponse.json({
-      dialogo: "El silencio se apodera del lugar.",
-      opciones_respuesta: [{ id: 1, texto: "Continuar...", tipo: "narrativa" }]
-    });
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

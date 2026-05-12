@@ -68,6 +68,10 @@ export async function hablarConNPC(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ mensajeUsuario, personaje, grupo, contextoNPC }),
   });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || `Error ${res.status} en Agente de Diálogo`);
+  }
   return res.json();
 }
 
@@ -79,7 +83,10 @@ export async function elegirClaseGremio(personajeId: string, partidaId: string, 
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ action: "elegirClaseGremio", personajeId, partidaId, claseId }),
   });
-  if (!res.ok) throw new Error("Error al elegir clase en el gremio");
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || `Error ${res.status} al elegir clase en el gremio`);
+  }
   return res.json();
 }
 
@@ -89,6 +96,10 @@ export async function gestionarGrupo(personajeId: string, partidaId: string, nue
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ action: "gestionarGrupo", personajeId, partidaId, nuevoGrupo }),
   });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || `Error ${res.status} al gestionar grupo`);
+  }
   return res.json();
 }
 
@@ -100,6 +111,10 @@ export async function rollInitiative(personaje: Personaje, grupo: any[], enemigo
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ action: "rollInitiative", personaje, grupo, enemigos }),
   });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || `Error ${res.status} al rodar iniciativa`);
+  }
   return res.json();
 }
 
@@ -114,7 +129,10 @@ export async function procesarCombate(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ action: "procesarCombate", personajeId, habilidadId, partidaId, targetId }),
   });
-  if (!res.ok) throw new Error("Error al procesar combate");
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || `Error ${res.status} al procesar combate`);
+  }
   return res.json();
 }
 

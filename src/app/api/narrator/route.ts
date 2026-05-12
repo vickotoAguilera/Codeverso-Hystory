@@ -87,6 +87,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(JSON.parse(content) as RespuestaIA);
   } catch (error) {
     console.error("Error al generar narrativa:", error);
-    return NextResponse.json({ error: "Error en la comunicación con el Agente Narrador" }, { status: 500 });
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }
