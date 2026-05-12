@@ -1,8 +1,12 @@
+import { AudioTrackKey } from "@/config/assets";
+
 export interface Atributos {
   fuerza: number;
   agilidad: number;
   inteligencia: number;
 }
+
+export { type AudioTrackKey };
 
 export type Elemento = "Fuego" | "Agua" | "Viento" | "Tierra" | "Físico";
 
@@ -68,6 +72,15 @@ export interface Objeto {
   equipado?: boolean;
 }
 
+export interface Clase {
+  id: string;
+  nombre: string;
+  lore: string;
+  bonificadores: Atributos;
+  habilidades: Habilidad[];
+  ultimate: Habilidad;
+}
+
 export interface Personaje {
   id: string;
   usuarioId: string;
@@ -93,6 +106,7 @@ export interface Personaje {
   narrative_context?: string;
   status_effects: StatusEffect[];
   habilidades_desbloqueadas?: Habilidad[];
+  habilidades_equipadas?: (Habilidad | null)[]; // Máximo 2 slots dinámicos
 }
 
 export interface Enemigo {
@@ -119,6 +133,7 @@ export interface OpcionNarrativa {
 export interface RespuestaIA {
   narrativa: string;
   opciones: OpcionNarrativa[];
+  bgm_change?: string; // Clave del mapeo de audio
   nueva_ubicacion?: string;
   cambio_karma?: number;
   loot?: Objeto[];

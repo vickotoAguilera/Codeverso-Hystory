@@ -6,9 +6,10 @@ import { Personaje, Companero } from '@/types/game';
 interface Props {
   personaje: Personaje;
   grupo?: Companero[];
+  onUpdatePersonaje?: (personaje: Personaje) => void;
 }
 
-export const CharacterPanel: React.FC<Props> = ({ personaje, grupo = [] }) => {
+export const CharacterPanel: React.FC<Props> = ({ personaje, grupo = [], onUpdatePersonaje }) => {
   const hpPercentage = (personaje.hpActual / personaje.hpMax) * 100;
   const xpPercentage = (personaje.experiencia / (personaje.xpNecesaria || 100)) * 100;
 
@@ -105,7 +106,7 @@ export const CharacterPanel: React.FC<Props> = ({ personaje, grupo = [] }) => {
           {personaje.inventario.length > 0 ? (
             personaje.inventario.map((item, idx) => (
               <span key={idx} className="px-3 py-1 rounded-full bg-border/30 border border-border text-[10px] uppercase font-bold text-foreground/80">
-                {item}
+                {item.nombre}
               </span>
             ))
           ) : (

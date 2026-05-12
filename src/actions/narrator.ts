@@ -59,6 +59,7 @@ export async function generarNarrativa(
           ESTRUCTURA JSON:
           {
             "narrativa": "...",
+            "bgm_change": "world_map|woodland|town|forest_nymph|cave_hell|song_18|fomorians_rise|moralltach|market|ireland_coast|heroic_demise|tropical_island|sneaking|prairie_nights|thael_mines|military_base|tuatha_exodus|whispers_beyond|witch_lair|apocalypse|catacombs|ancient_evil|celtic_raiders|celtic_warrior|cu_chullain|battle_rpg|children_of_lir|cave_theme|innocence|summer_memories|sand_castles|peaceful_days|childhood_friends|home_place|caketown|battle_a|awesomeness|prep_battle|army_approach|encounter_witches|irish_souls|prayer_fields" (opcional, solo si la escena cambia de tono o lugar),
             "opciones": [
               {
                 "id": 1,

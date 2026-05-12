@@ -7,19 +7,31 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { collection, query, where, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { Personaje, Partida, RespuestaIA } from '@/types/game';
 import { CharacterPanel } from '@/components/game/CharacterPanel';
+import { GuildManagement } from '@/components/game/GuildManagement';
 import { generarNarrativa } from '@/actions/narrator';
 import { procesarCombate, resucitarPersonaje } from '@/actions/combat';
-import { elegirClaseGremio } from '@/actions/guild';
+import { elegirClaseGremio, gestionarGrupo } from '@/actions/guild';
 import { hablarConNPC } from '@/actions/dialogue';
 import { CLASES } from '@/data/compendium';
+import { Companero, AudioTrackKey } from '@/types/game';
+import { useAudio } from '@/context/AudioContext';
 
 export default function GamePage() {
   const router = useRouter();
+  const { playBGM } = useAudio();
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [personaje, setPersonaje] = useState<Personaje | null>(null);
   const [partida, setPartida] = useState<Partida | null>(null);
   const [narrativaActual, setNarrativaActual] = useState<RespuestaIA | null>(null);
+  const [showGuild, setShowGuild] = useState(false);
+
+  // Escuchar cambios de BGM
+  useEffect(() => {
+    if (narrativaActual?.bgm_change) {
+      playBGM(narrativaActual.bgm_change as AudioTrackKey);
+    }
+  }, [narrativaActual, playBGM]);
 
   // Carga inicial de datos
   const loadGameData = useCallback(async (uid: string) => {
@@ -133,14 +145,14 @@ export default function GamePage() {
     }
   };
 
-  const handleCombatAction = async (opcion: any) => {
+  const handleCombatAction = async (habilidadId: string) => {
     if (!personaje || !partida) return;
     setActionLoading(true);
 
     try {
       const { narracion, logs, combatResult } = await procesarCombate(
         personaje.id, 
-        opcion.habilidad_id || "ID_CORTE_CRUZADO",
+        habilidadId,
         partida.id,
         narrativaActual?.enemigos?.[0]?.id || ""
       );
@@ -192,6 +204,64 @@ export default function GamePage() {
     }
   };
 
+  const renderCombatSlots = () => {
+    if (!personaje) return null;
+
+    const claseActual = CLASES.find(c => c.id === personaje.clase);
+    const slots = [
+      { id: "SISTEMA_ATAQUE", nombre: "Ataque Básico", costo: 0, tipo: "Físico", tooltip: "Restaura MP según el dado" },
+      { id: "SISTEMA_DEFENSA", nombre: "Defender", costo: 0, tipo: "Defensa", tooltip: "Aumenta defensa este turno" },
+      { 
+        id: claseActual?.ultimate.id || "ULT_FALLBACK", 
+        nombre: claseActual?.ultimate.nombre || "Ultimate", 
+        costo: claseActual?.ultimate.costo_mp || 0, 
+        tipo: "ULTIMATE",
+        disabled: personaje.nivel < 10 || (personaje.mpActual < (claseActual?.ultimate.costo_mp || 0))
+      },
+      { 
+        id: personaje.habilidades_equipadas?.[0]?.id || "SLOT_4_EMPTY", 
+        nombre: personaje.habilidades_equipadas?.[0]?.nombre || "Slot 4 Vacío", 
+        costo: personaje.habilidades_equipadas?.[0]?.costo_mp || 0,
+        tipo: "Equipada",
+        disabled: !personaje.habilidades_equipadas?.[0] || (personaje.mpActual < (personaje.habilidades_equipadas?.[0]?.costo_mp || 0))
+      },
+      { 
+        id: personaje.habilidades_equipadas?.[1]?.id || "SLOT_5_EMPTY", 
+        nombre: personaje.habilidades_equipadas?.[1]?.nombre || "Slot 5 Vacío", 
+        costo: personaje.habilidades_equipadas?.[1]?.costo_mp || 0,
+        tipo: "Equipada",
+        disabled: !personaje.habilidades_equipadas?.[1] || (personaje.mpActual < (personaje.habilidades_equipadas?.[1]?.costo_mp || 0))
+      }
+    ];
+
+    return (
+      <div className="col-span-full grid grid-cols-1 sm:grid-cols-5 gap-3 mt-4">
+        {slots.map((slot, index) => (
+          <button
+            key={slot.id + index}
+            disabled={slot.disabled || slot.id.includes("EMPTY")}
+            onClick={() => handleCombatAction(slot.id)}
+            className={`btn-shiny p-4 rounded-xl text-center flex flex-col gap-1 transition-all group ${
+              slot.disabled || slot.id.includes("EMPTY") ? 'opacity-30 grayscale cursor-not-allowed' : 'hover:scale-105 active:scale-95'
+            }`}
+          >
+            <span className="text-[8px] font-bold text-primary/40 uppercase tracking-widest">Slot {index + 1}</span>
+            <span className="text-xs font-black text-foreground group-hover:text-primary transition-colors line-clamp-1">{slot.nombre}</span>
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-[7px] text-foreground/30 uppercase">{slot.tipo}</span>
+              {slot.costo > 0 && (
+                <span className="text-[8px] font-mono text-primary">{slot.costo} MP</span>
+              )}
+            </div>
+            {slot.tooltip && (
+              <span className="text-[7px] text-foreground/20 italic mt-1">{slot.tooltip}</span>
+            )}
+          </button>
+        ))}
+      </div>
+    );
+  };
+
   const handleSelectClass = async (claseId: string) => {
     if (!personaje || !partida) return;
     setActionLoading(true);
@@ -236,6 +306,24 @@ export default function GamePage() {
     }
   };
 
+  const handleUpdatePersonaje = (nuevoPersonaje: Personaje) => {
+    setPersonaje(nuevoPersonaje);
+  };
+
+  const handleConfirmGuild = async (nuevoGrupo: Companero[]) => {
+    if (!personaje || !partida) return;
+    setActionLoading(true);
+    try {
+      await gestionarGrupo(personaje.id, partida.id, nuevoGrupo);
+      setPartida({ ...partida, grupo: nuevoGrupo });
+      setShowGuild(false);
+    } catch (error) {
+      console.error("Error al confirmar gremio:", error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   if (loading || !personaje || !partida) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-background">
@@ -254,9 +342,20 @@ export default function GamePage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(64,230,255,0.1),transparent_70%)] animate-aurora"></div>
       </div>
 
-      {/* Área Narrativa */}
-      <div className="flex-1 flex flex-col gap-8 max-w-4xl mx-auto w-full order-2 lg:order-1">
-        <div className="bg-card/50 backdrop-blur-md border border-border rounded-3xl p-8 shadow-2xl min-h-[400px] flex flex-col justify-between relative overflow-hidden">
+      {showGuild ? (
+        <div className="flex-1 w-full max-w-6xl mx-auto order-2 lg:order-1">
+          <GuildManagement 
+            personaje={personaje}
+            aliadosDesbloqueados={partida.aliados_desbloqueados || []}
+            grupoActual={partida.grupo}
+            onConfirm={handleConfirmGuild}
+            onBack={() => setShowGuild(false)}
+            onUpdatePersonaje={handleUpdatePersonaje}
+          />
+        </div>
+      ) : (
+        <div className="flex-1 flex flex-col gap-8 max-w-4xl mx-auto w-full order-2 lg:order-1">
+          <div className="bg-card/50 backdrop-blur-md border border-border rounded-3xl p-8 shadow-2xl min-h-[400px] flex flex-col justify-between relative overflow-hidden">
           
           {/* Texto Narrativo */}
           <div className={`space-y-6 transition-opacity duration-500 ${actionLoading ? 'opacity-30' : 'opacity-100'}`}>
@@ -307,29 +406,29 @@ export default function GamePage() {
               </>
             ) : (
               // Bucle de Juego Normal
-              narrativaActual?.opciones.map((opcion) => (
-                <button
-                  key={opcion.id}
-                  onClick={() => {
-                    if (opcion.tipo_accion === 'combate') {
-                      handleCombatAction(opcion);
-                    } else {
-                      handleNextStep(opcion.texto_boton, partida, personaje);
-                    }
-                  }}
-                  className="btn-shiny p-5 rounded-2xl text-left flex flex-col gap-2 group hover:scale-[1.02] active:scale-[0.98] transition-all"
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-primary/40 uppercase tracking-widest">{opcion.tipo_accion}</span>
-                    {opcion.atributo_requerido && (
-                      <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
-                        {opcion.atributo_requerido.toUpperCase()}
-                      </span>
-                    )}
-                  </div>
-                  <span className="font-bold text-foreground group-hover:text-primary transition-colors">{opcion.texto_boton}</span>
-                </button>
-              ))
+              <>
+                {narrativaActual?.opciones.some(o => o.tipo_accion === 'combate') ? (
+                  renderCombatSlots()
+                ) : (
+                  narrativaActual?.opciones.map((opcion) => (
+                    <button
+                      key={opcion.id}
+                      onClick={() => handleNextStep(opcion.texto_boton, partida, personaje)}
+                      className="btn-shiny p-5 rounded-2xl text-left flex flex-col gap-2 group hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-bold text-primary/40 uppercase tracking-widest">{opcion.tipo_accion}</span>
+                        {opcion.atributo_requerido && (
+                          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
+                            {opcion.atributo_requerido.toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-bold text-foreground group-hover:text-primary transition-colors">{opcion.texto_boton}</span>
+                    </button>
+                  ))
+                )}
+              </>
             )}
           </div>
         </div>
@@ -341,6 +440,14 @@ export default function GamePage() {
               <span className="text-[10px] text-foreground/30 uppercase font-bold tracking-widest">Fase Actual</span>
               <span className="text-xs font-mono text-secondary uppercase">{partida.faseJuego}</span>
             </div>
+            {partida.faseJuego === 'aventura' && (
+              <button 
+                onClick={() => setShowGuild(true)}
+                className="btn-shiny px-4 py-2 rounded-full text-[10px] font-black text-primary border-primary/20 uppercase tracking-widest"
+              >
+                Sede del Gremio
+              </button>
+            )}
           </div>
           <button 
             onClick={() => router.push('/')}
@@ -350,10 +457,15 @@ export default function GamePage() {
           </button>
         </div>
       </div>
+    )}
 
-      {/* Panel Lateral de Personaje */}
+    {/* Panel Lateral de Personaje */}
       <aside className="order-1 lg:order-2">
-        <CharacterPanel personaje={personaje} grupo={partida.grupo} />
+        <CharacterPanel 
+          personaje={personaje} 
+          grupo={partida.grupo} 
+          onUpdatePersonaje={handleUpdatePersonaje} 
+        />
       </aside>
     </main>
   );

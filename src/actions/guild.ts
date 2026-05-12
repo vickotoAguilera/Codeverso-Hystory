@@ -101,3 +101,17 @@ export async function elegirClaseGremio(personajeId: string, partidaId: string, 
     grupo
   };
 }
+
+/**
+ * Actualiza el grupo (La Tríada) en Firestore.
+ */
+export async function gestionarGrupo(personajeId: string, partidaId: string, nuevoGrupo: Companero[]) {
+  const gameRef = doc(db, "partidas", partidaId);
+  
+  await updateDoc(gameRef, {
+    grupo: nuevoGrupo,
+    timestamp: Date.now()
+  });
+
+  return { success: true };
+}

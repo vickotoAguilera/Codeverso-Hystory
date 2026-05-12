@@ -96,24 +96,79 @@ export async function procesarCombate(
   const character = charSnap.data() as Personaje;
   const partida = gameSnap.data() as Partida;
   
-  // Buscar la habilidad en el compendio
-  const skill: Habilidad = (habilidadId === "ID_PIRO" || habilidadId === "ID_VIENTO") ? 
-    { id: "ID_PIRO", nombre: "Piro", tipo: "Magia Negra", poder: 25, costo_mp: 5, elemento: "Fuego", efecto: "DOT_QUEMADURA", dot_duracion: 3, dot_dano: 15, descripcion: "Daña con fuego", alcance: "Un Enemigo" } :
-    { id: "ID_CORTE_CRUZADO", nombre: "Corte Cruzado", tipo: "Habilidad Fisica", poder: 25, costo_mp: 5, elemento: "Físico", descripcion: "Ataque físico", alcance: "Un Enemigo" };
+  // Buscar la habilidad
+  let skill: Habilidad;
+  const isSistemaAtaque = habilidadId === "SISTEMA_ATAQUE";
+  const isSistemaDefensa = habilidadId === "SISTEMA_DEFENSA";
 
-  const target = partida.ultimaNarrativa.enemigos?.find(e => e.id === targetId);
-  if (!target) throw new Error("Objetivo no encontrado");
+  if (isSistemaAtaque) {
+    skill = {
+      id: "SISTEMA_ATAQUE",
+      nombre: "Ataque Básico",
+      tipo: "Habilidad Fisica",
+      poder: 15,
+      costo_mp: 0,
+      elemento: "Físico",
+      descripcion: "Ataque básico",
+      alcance: "Un Enemigo"
+    };
+  } else if (isSistemaDefensa) {
+    skill = {
+      id: "SISTEMA_DEFENSA",
+      nombre: "Defender",
+      tipo: "Habilidad Defensa",
+      poder: 0,
+      costo_mp: 0,
+      elemento: "Físico",
+      descripcion: "Defensa",
+      alcance: "Usuario"
+    };
+  } else {
+    // Buscar en desbloqueadas o ultimate de la clase
+    const allSkills = [
+      ...(character.habilidades_desbloqueadas || []),
+      ...(character.habilidades_equipadas?.filter(s => s !== null) as Habilidad[] || [])
+    ];
+    
+    // También buscar en el compendio si es una de las básicas de prueba
+    const foundSkill = allSkills.find(s => s.id === habilidadId);
+    
+    if (foundSkill) {
+      skill = foundSkill;
+    } else {
+      // Por ahora, fallback a las de prueba o buscar en el compendio global (simplificado)
+      skill = habilidadId === "ID_PIRO" ? 
+        { id: "ID_PIRO", nombre: "Piro", tipo: "Magia Negra", poder: 25, costo_mp: 5, elemento: "Fuego", efecto: "DOT_QUEMADURA", dot_duracion: 3, dot_dano: 15, descripcion: "Daña con fuego", alcance: "Un Enemigo" } :
+        { id: "ID_CORTE_CRUZADO", nombre: "Corte Cruzado", tipo: "Habilidad Fisica", poder: 25, costo_mp: 5, elemento: "Físico", descripcion: "Ataque físico", alcance: "Un Enemigo" };
+    }
+  }
 
+  const target = isSistemaDefensa ? character : partida.ultimaNarrativa.enemigos?.find(e => e.id === targetId);
+  if (!target && !isSistemaDefensa) throw new Error("Objetivo no encontrado");
+
+  const roll = Math.floor(Math.random() * 20) + 1;
   const combatResult = await executeSkill(character, target, skill);
+  
+  // Lógica especial de MP para Ataque Básico
+  let mpGanado = 0;
+  if (isSistemaAtaque) {
+    mpGanado = roll; // Restaura MP basado en el dado
+  }
 
   // Actualizar estados
-  let nuevoHP_Enemigo = Math.max(0, target.hpActual - combatResult.damage);
-  let nuevoMP_Heroe = combatResult.isCritical ? character.mpMax : Math.max(0, character.mpActual - skill.costo_mp);
+  let nuevoHP_Enemigo = target && !isSistemaDefensa ? Math.max(0, target.hpActual - combatResult.damage) : 0;
+  let nuevoMP_Heroe = Math.min(character.mpMax, Math.max(0, character.mpActual - skill.costo_mp + mpGanado));
+  
+  if (combatResult.isCritical && !isSistemaAtaque) {
+    nuevoMP_Heroe = character.mpMax;
+  }
   
   const logs: LogEntry[] = [{
     id: crypto.randomUUID(),
     tipo: "combate",
-    mensaje: `¡${character.nombre} usa ${skill.nombre}! Inflige ${combatResult.damage} de daño. ${combatResult.isCritical ? "¡GOLPE CRÍTICO!" : ""}`,
+    mensaje: isSistemaDefensa 
+      ? `¡${character.nombre} se pone en guardia!`
+      : `¡${character.nombre} usa ${skill.nombre}! ${isSistemaAtaque ? `Restaura ${mpGanado} MP. ` : ""}Inflige ${combatResult.damage} de daño. ${combatResult.isCritical ? "¡GOLPE CRÍTICO!" : ""}`,
     timestamp: Date.now(),
     isCritical: combatResult.isCritical
   }];
@@ -121,11 +176,14 @@ export async function procesarCombate(
   // Persistir cambios
   await updateDoc(charRef, {
     mpActual: nuevoMP_Heroe,
+    status_effects: isSistemaDefensa 
+      ? [...(character.status_effects || []), { id: crypto.randomUUID(), tipo: "HOT_REGENERACION", duracion: 1, valor: 5 }] // Simplificado como buff
+      : character.status_effects
   });
 
-  const nuevosEnemigos = partida.ultimaNarrativa.enemigos?.map(e => 
+  const nuevosEnemigos = target && !isSistemaDefensa ? partida.ultimaNarrativa.enemigos?.map(e => 
     e.id === targetId ? { ...e, hpActual: nuevoHP_Enemigo } : e
-  );
+  ) : partida.ultimaNarrativa.enemigos;
 
   await updateDoc(gameRef, {
     "ultimaNarrativa.enemigos": nuevosEnemigos,
